@@ -8,8 +8,9 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
 from PySide6.QtWidgets import (QApplication, QDockWidget, QGridLayout, QHBoxLayout,
     QLabel, QListView, QMainWindow, QMenuBar,
     QSizePolicy, QSlider, QTabWidget, QToolButton,
-    QWidget)
+    QWidget, QAbstractSlider)
 from PySide6.QtMultimedia import QMediaMetaData, QMediaPlayer
+import quching.utils as utils
 
 class QuchingUI(object):
     def setupUi(self, MainWindow):
@@ -110,6 +111,7 @@ class QuchingUI(object):
         self.seek_slider = QSlider(self.controls_dock_widget)
         self.seek_slider.setObjectName(u"seek_slider")
         self.seek_slider.setOrientation(Qt.Orientation.Horizontal)
+        self.seek_slider.setTracking(False)
 
         self.horizontalLayout.addWidget(self.seek_slider)
 
@@ -192,9 +194,14 @@ class QuchingWindow(QMainWindow):
         self.ui.setupUi(self)
         self.player = player
         self.player.player.mediaStatusChanged.connect(self.load)
-        self.ui.play_button.clicked.connect(self.player.toggle_play)
+        self.ui.play_button.clicked.connect(self.toggle_play)
         self.player.player.sourceChanged.connect(self.change_meta)
-        self.player.toggle_play()
+        self.player.player.positionChanged.connect(self.update_pos)
+        self.ui.seek_slider.sliderMoved.connect(self.seeked)
+        self.ui.volume_slider.valueChanged.connect(self.update_vol)
+        self.ui.volume_slider.setValue(int(self.player.output.volume() * 100))
+        self.ui.volume_percent.setText(F"{self.ui.volume_slider.value()}%")
+        self.toggle_play()
     
     def load(self, status):
         if status == QMediaPlayer.MediaStatus.LoadedMedia:
@@ -205,6 +212,8 @@ class QuchingWindow(QMainWindow):
         self.ui.albumLabel.setText(self.player.get_metadata().value(QMediaMetaData.Key.AlbumTitle))
         self.ui.titleLabel.setText(self.player.get_metadata().value(QMediaMetaData.Key.Title))
         self.ui.trackLabel.setText(F"{self.player.current_track+1}/{len(self.player.queue)}")
+        self.ui.seek_slider.setMaximum(self.player.player.duration())
+        self.ui.total_time.setText(utils.ms_to_str(self.player.player.duration()))
         self.change_thumbnail()
     
     def change_thumbnail(self):
@@ -214,3 +223,21 @@ class QuchingWindow(QMainWindow):
             return
         img.scaled(QSize(200, 200)).save("/tmp/bg.jpg")
         self.ui.queue_dock.setStyleSheet("#queue_dock_widget { background-image: url(/tmp/bg.jpg); background-position: bottom left; background-repeat: no-repeat; background-attachment: fixed; }")
+    
+    def toggle_play(self):
+        if self.ui.play_button.icon().name() == QIcon.fromTheme(QIcon.ThemeIcon.MediaPlaybackStart).name():
+            self.ui.play_button.setIcon(QIcon.fromTheme(QIcon.ThemeIcon.MediaPlaybackPause))
+        else:
+            self.ui.play_button.setIcon(QIcon.fromTheme(QIcon.ThemeIcon.MediaPlaybackStart))
+        self.player.toggle_play()
+    
+    def update_pos(self, pos):
+        self.ui.seek_slider.setValue(pos)
+        self.ui.curr_time.setText(utils.ms_to_str(pos))
+    
+    def update_vol(self, vol):
+        self.player.output.setVolume(float(vol) / 100)
+        self.ui.volume_percent.setText(F"{vol}%")
+    
+    def seeked(self, pos):
+        self.player.player.setPosition(pos)
