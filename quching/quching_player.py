@@ -17,20 +17,29 @@ class QuchingPlayer(QObject):
         return self.player.metaData()
     
     def play_next(self):
+        was_playing = self.player.isPlaying()
         if self.current_track + 1 >= len(self.queue):
             self.current_track = 0
         else:
             self.current_track += 1
-        self.player.stop()
         self.player.setSource(QUrl.fromLocalFile(self.queue[self.current_track]))
+        if was_playing:
+            self.player.play()
     
     def play_previous(self):
-        if self.current_track - 1 < 0:
-            self.current_track = len(self.queue) - 1
-        else: 
-            self.current_track -= 1
-        self.player.stop()
-        self.player.setSource(QUrl.fromLocalFile(self.queue[self.current_track]))
+        was_playing = self.player.isPlaying()
+        if (self.player.position() / self.player.duration()) >= 0.5:
+            if self.current_track - 1 < 0:
+                self.current_track = len(self.queue) - 1
+            else: 
+                self.current_track -= 1
+            self.player.setSource(QUrl.fromLocalFile(self.queue[self.current_track]))
+            if was_playing:
+                self.player.play()
+        else:
+            self.player.setPosition(0)
+            if was_playing:
+                self.player.play()
     
     def toggle_play(self):
         if self.player.isPlaying():

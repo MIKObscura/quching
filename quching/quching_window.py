@@ -195,6 +195,8 @@ class QuchingWindow(QMainWindow):
         self.player = player
         self.player.player.mediaStatusChanged.connect(self.load)
         self.ui.play_button.clicked.connect(self.toggle_play)
+        self.ui.next_button.clicked.connect(self.player.play_next)
+        self.ui.prev_button.clicked.connect(self.player.play_previous)
         self.player.player.sourceChanged.connect(self.change_meta)
         self.player.player.positionChanged.connect(self.update_pos)
         self.ui.seek_slider.sliderMoved.connect(self.seeked)
@@ -207,7 +209,7 @@ class QuchingWindow(QMainWindow):
         if status == QMediaPlayer.MediaStatus.LoadedMedia:
             self.change_meta()
     
-    def change_meta(self):
+    def change_meta(self, media=None):
         self.ui.artistLabel.setText(" & ".join(self.player.get_metadata().value(QMediaMetaData.Key.ContributingArtist)))
         self.ui.albumLabel.setText(self.player.get_metadata().value(QMediaMetaData.Key.AlbumTitle))
         self.ui.titleLabel.setText(self.player.get_metadata().value(QMediaMetaData.Key.Title))
@@ -241,3 +243,9 @@ class QuchingWindow(QMainWindow):
     
     def seeked(self, pos):
         self.player.player.setPosition(pos)
+    
+    def play_next(self):
+        pass
+
+    def play_prev(self):
+        pass
