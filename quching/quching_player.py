@@ -4,14 +4,14 @@ from PySide6.QtCore import QObject, QUrl
 
 class QuchingPlayer(QObject):
     
-    def __init__(self, path, volume=1):
-        self.queue = [path]
+    def __init__(self, paths, volume=1):
+        self.queue = paths
         self.current_track = 0
         self.player = QMediaPlayer()
         self.output = QAudioOutput()
         self.output.setVolume(volume)
         self.player.setAudioOutput(self.output)
-        self.player.setSource(QUrl.fromLocalFile(path))
+        self.player.setSource(QUrl.fromLocalFile(self.queue[0]))
     
     def get_metadata(self):
         return self.player.metaData()

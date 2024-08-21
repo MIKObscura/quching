@@ -6,7 +6,7 @@ from PySide6.QtWidgets import QApplication
 if __name__=="__main__":
     app = QApplication()
 
-    player = QuchingPlayer(sys.argv[1], 0.5)
+    player = QuchingPlayer(sys.argv[1:], 0.5)
     quching = QuchingWindow(player)
     quching.show()
 
