@@ -46,3 +46,6 @@ class QuchingPlayer(QObject):
             self.player.pause()
         else:
             self.player.play()
+    
+    def get_current_track(self):
+        return self.queue[self.current_track]

@@ -4,13 +4,14 @@ from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
 from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
-    QPalette, QPixmap, QRadialGradient, QTransform)
+    QPalette, QPixmap, QRadialGradient, QTransform, QStandardItemModel, QStandardItem)
 from PySide6.QtWidgets import (QApplication, QDockWidget, QGridLayout, QHBoxLayout,
     QLabel, QListView, QMainWindow, QMenuBar,
     QSizePolicy, QSlider, QTabWidget, QToolButton,
-    QWidget, QAbstractSlider)
+    QWidget, QAbstractSlider, QAbstractItemView)
 from PySide6.QtMultimedia import QMediaMetaData, QMediaPlayer
 import quching.utils as utils
+import taglib
 
 class QuchingUI(object):
     def setupUi(self, MainWindow):
@@ -38,7 +39,11 @@ class QuchingUI(object):
         self.gridLayout_3.setObjectName(u"gridLayout_3")
         self.queue_view = QListView(self.queue_dock_widget)
         self.queue_view.setObjectName(u"queue_view")
+        self.queue_model = QStandardItemModel()
+        self.queue_view.setModel(self.queue_model)
         self.queue_view.setMovement(QListView.Movement.Snap)
+        #self.queue_view.setDefaultDropAction(Qt.DropAction.MoveAction)
+        self.queue_view.setDragDropMode(QAbstractItemView.InternalMove)
 
         self.gridLayout_3.addWidget(self.queue_view, 0, 0, 1, 1)
 
@@ -193,6 +198,7 @@ class QuchingWindow(QMainWindow):
         self.ui = QuchingUI()
         self.ui.setupUi(self)
         self.player = player
+        self.setup_queue()
         self.player.player.mediaStatusChanged.connect(self.load)
         self.ui.play_button.clicked.connect(self.toggle_play)
         self.ui.next_button.clicked.connect(self.player.play_next)
@@ -203,6 +209,7 @@ class QuchingWindow(QMainWindow):
         self.ui.volume_slider.valueChanged.connect(self.update_vol)
         self.ui.volume_slider.setValue(int(self.player.output.volume() * 100))
         self.ui.volume_percent.setText(F"{self.ui.volume_slider.value()}%")
+        self.ui.queue_model.rowsRemoved.connect(self.rearrange_queue)
         self.toggle_play()
     
     def load(self, status):
@@ -225,7 +232,7 @@ class QuchingWindow(QMainWindow):
         if img is None:
             self.ui.queue_dock.setStyleSheet("#queue_dock_widget { background-image: url(cat.png); background-position: bottom left; background-repeat: no-repeat; background-attachment: fixed; }")
             return
-        img.scaled(QSize(200, 200)).save("/tmp/bg.jpg")
+        img.scaled(QSize(256, 256)).save("/tmp/bg.jpg")
         self.ui.queue_dock.setStyleSheet("#queue_dock_widget { background-image: url(/tmp/bg.jpg); background-position: bottom left; background-repeat: no-repeat; background-attachment: fixed; }")
     
     def toggle_play(self):
@@ -245,3 +252,18 @@ class QuchingWindow(QMainWindow):
     
     def seeked(self, pos):
         self.player.player.setPosition(pos)
+    
+    def setup_queue(self):
+        for i in self.player.queue:
+            tags = taglib.File(i).tags
+            item = QStandardItem(F"{" & ".join(tags["ARTIST"])} - {tags["TITLE"][0]}")
+            item.setWhatsThis(i)
+            self.ui.queue_model.appendRow(item)
+    
+    def rearrange_queue(self, *args):
+        new_queue = []
+        for i in range(self.ui.queue_model.rowCount()):
+            new_queue.append(self.ui.queue_model.item(i).whatsThis())
+        new_current = new_queue.index(self.player.get_current_track())
+        self.player.queue = new_queue
+        self.player.current_track = new_current
