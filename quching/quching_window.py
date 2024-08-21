@@ -210,6 +210,8 @@ class QuchingWindow(QMainWindow):
             self.change_meta()
     
     def change_meta(self, media=None):
+        if self.player.player.mediaStatus() != QMediaPlayer.MediaStatus.LoadedMedia:
+            return
         self.ui.artistLabel.setText(" & ".join(self.player.get_metadata().value(QMediaMetaData.Key.ContributingArtist)))
         self.ui.albumLabel.setText(self.player.get_metadata().value(QMediaMetaData.Key.AlbumTitle))
         self.ui.titleLabel.setText(self.player.get_metadata().value(QMediaMetaData.Key.Title))
@@ -243,9 +245,3 @@ class QuchingWindow(QMainWindow):
     
     def seeked(self, pos):
         self.player.player.setPosition(pos)
-    
-    def play_next(self):
-        pass
-
-    def play_prev(self):
-        pass

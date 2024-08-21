@@ -28,7 +28,7 @@ class QuchingPlayer(QObject):
     
     def play_previous(self):
         was_playing = self.player.isPlaying()
-        if (self.player.position() / self.player.duration()) >= 0.5:
+        if (self.player.position() / self.player.duration()) < 0.5:
             if self.current_track - 1 < 0:
                 self.current_track = len(self.queue) - 1
             else: 
