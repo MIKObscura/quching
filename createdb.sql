@@ -5,6 +5,7 @@ CREATE TABLE "audio_files" (
 	"album"	TEXT,
 	"title"	TEXT,
 	"tracknumber"	INTEGER,
+	"duration" INTEGER,
 	PRIMARY KEY("id" AUTOINCREMENT)
 );
 CREATE TABLE "cue_sheets" (

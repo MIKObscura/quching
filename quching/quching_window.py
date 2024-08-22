@@ -12,6 +12,7 @@ from PySide6.QtWidgets import (QApplication, QDockWidget, QGridLayout, QHBoxLayo
 from PySide6.QtMultimedia import QMediaMetaData, QMediaPlayer
 import quching.utils as utils
 import taglib
+import quching.indexer.database as db
 
 class QuchingUI(object):
     def setupUi(self, MainWindow):
@@ -61,12 +62,53 @@ class QuchingUI(object):
         self.browser_tabs.setObjectName(u"browser_tabs")
         self.artists_tab = QWidget()
         self.artists_tab.setObjectName(u"artists_tab")
+        self.gridLayout_5 = QGridLayout(self.artists_tab)
+        self.gridLayout_5.setObjectName(u"gridLayout_5")
+        self.artists_list = QListView(self.artists_tab)
+        self.artists_list.setGridSize(QSize(100, 100))
+        self.artists_list.setResizeMode(QListView.ResizeMode.Adjust)
+        self.artists_model = QStandardItemModel()
+        self.artists_list.setModel(self.artists_model)
+        self.artists_list.setObjectName(u"artistsList")
+        self.artists_list.setMovement(QListView.Movement.Static)
+        self.artists_list.setFlow(QListView.Flow.LeftToRight)
+        self.artists_list.setProperty("isWrapping", True)
+        self.artists_list.setViewMode(QListView.ViewMode.IconMode)
+
+        self.gridLayout_5.addWidget(self.artists_list, 0, 0, 1, 1)
+
         self.browser_tabs.addTab(self.artists_tab, "")
         self.albums_tab = QWidget()
         self.albums_tab.setObjectName(u"albums_tab")
+        self.gridLayout_6 = QGridLayout(self.albums_tab)
+        self.gridLayout_6.setObjectName(u"gridLayout_6")
+        self.albums_list = QListView(self.albums_tab)
+        self.albums_list.setGridSize(QSize(100, 100))
+        self.albums_list.setResizeMode(QListView.ResizeMode.Adjust)
+        self.albums_model = QStandardItemModel()
+        self.albums_list.setModel(self.albums_model)
+        self.albums_list.setObjectName(u"albumsList")
+        self.albums_list.setMovement(QListView.Movement.Static)
+        self.albums_list.setFlow(QListView.Flow.LeftToRight)
+        self.albums_list.setProperty("isWrapping", True)
+        self.albums_list.setViewMode(QListView.ViewMode.IconMode)
+
+        self.gridLayout_6.addWidget(self.albums_list, 0, 0, 1, 1)
+
         self.browser_tabs.addTab(self.albums_tab, "")
         self.playlists_tab = QWidget()
         self.playlists_tab.setObjectName(u"playlists_tab")
+        self.gridLayout_7 = QGridLayout(self.playlists_tab)
+        self.gridLayout_7.setObjectName(u"gridLayout_7")
+        self.playlistsList = QListView(self.playlists_tab)
+        self.playlistsList.setObjectName(u"playlistsList")
+        self.playlistsList.setMovement(QListView.Movement.Static)
+        self.playlistsList.setFlow(QListView.Flow.LeftToRight)
+        self.playlistsList.setProperty("isWrapping", True)
+        self.playlistsList.setViewMode(QListView.ViewMode.IconMode)
+
+        self.gridLayout_7.addWidget(self.playlistsList, 0, 0, 1, 1)
+
         self.browser_tabs.addTab(self.playlists_tab, "")
 
         self.gridLayout_4.addWidget(self.browser_tabs, 0, 0, 1, 1)
@@ -169,7 +211,7 @@ class QuchingUI(object):
 
         self.retranslateUi(MainWindow)
 
-        self.browser_tabs.setCurrentIndex(2)
+        self.browser_tabs.setCurrentIndex(0)
 
 
         QMetaObject.connectSlotsByName(MainWindow)
@@ -210,6 +252,7 @@ class QuchingWindow(QMainWindow):
         self.ui.volume_slider.setValue(int(self.player.output.volume() * 100))
         self.ui.volume_percent.setText(F"{self.ui.volume_slider.value()}%")
         self.ui.queue_model.rowsRemoved.connect(self.rearrange_queue)
+        self.setup_tabs()
         self.toggle_play()
     
     def load(self, status):
@@ -267,3 +310,17 @@ class QuchingWindow(QMainWindow):
         new_current = new_queue.index(self.player.get_current_track())
         self.player.queue = new_queue
         self.player.current_track = new_current
+    
+    def setup_tabs(self):
+        artists = db.get_artists()
+        albums = db.get_albums()
+        for a in artists:
+            item = QStandardItem(a)
+            item.setIcon(QIcon("artist.png"))
+            item.setToolTip(a)
+            self.ui.artists_model.appendRow(item)
+        for a in albums:
+            item = QStandardItem(F"{a[1]} - {a[0]}")
+            item.setIcon(QIcon("cat.png"))
+            item.setToolTip(F"{a[0]} - {a[1]}")
+            self.ui.albums_model.appendRow(item)
