@@ -34,7 +34,7 @@ class QuchingUI(object):
         self.queue_dock_widget = QWidget()
         self.queue_dock_widget.setObjectName(u"queue_dock_widget")
         self.queue_dock.setStyleSheet("#queue_dock_widget { background-image: url(cat.png); background-position: bottom left; background-repeat: no-repeat }")
-        self.queue_dock_widget.setStyleSheet("#queue_view { background-color: rgba(0,0,0,0%) }")
+        self.queue_dock_widget.setStyleSheet("#queue_view { background-color: rgba(0,0,0,0%) } #queue_view::item { padding-top: 5px }")
         self.gridLayout_3 = QGridLayout(self.queue_dock_widget)
         self.gridLayout_3.setObjectName(u"gridLayout_3")
         self.queue_view = QListView(self.queue_dock_widget)
@@ -232,7 +232,7 @@ class QuchingWindow(QMainWindow):
         if img is None:
             self.ui.queue_dock.setStyleSheet("#queue_dock_widget { background-image: url(cat.png); background-position: bottom left; background-repeat: no-repeat; background-attachment: fixed; }")
             return
-        img.scaled(QSize(256, 256)).save("/tmp/bg.jpg")
+        img.scaled(QSize(320, 320)).save("/tmp/bg.jpg")
         self.ui.queue_dock.setStyleSheet("#queue_dock_widget { background-image: url(/tmp/bg.jpg); background-position: bottom left; background-repeat: no-repeat; background-attachment: fixed; }")
     
     def toggle_play(self):
