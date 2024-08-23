@@ -258,6 +258,9 @@ class QuchingWindow(QMainWindow):
     def load(self, status):
         if status == QMediaPlayer.MediaStatus.LoadedMedia:
             self.change_meta()
+        if status == QMediaPlayer.MediaStatus.EndOfMedia:
+            self.player.play_next()
+            self.player.player.play()
     
     def change_meta(self, media=None):
         if self.player.player.mediaStatus() != QMediaPlayer.MediaStatus.LoadedMedia:
