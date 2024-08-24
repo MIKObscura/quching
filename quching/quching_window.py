@@ -85,8 +85,8 @@ class QuchingUI(object):
         self.verticalLayout_2.addWidget(self.backButton)
         self.albumsTree = QTreeWidget(self.album_widget)
         self.albumsTree.setObjectName(u"albumsTree")
-        self.albumsTree.setHeaderHidden(True)
-        self.albumsTree.setColumnCount(3)
+        self.albumsTree.setColumnCount(2)
+        self.albumsTree.setHeaderLabels(["Title", "Duration"])
         self.verticalLayout_2.addWidget(self.albumsTree)
         self.gridLayout_5.addWidget(self.album_widget)
         self.album_widget.hide()
@@ -271,6 +271,7 @@ class QuchingWindow(QMainWindow):
         self.ui.artists_list.doubleClicked.connect(self.display_artist)
         self.ui.albums_list.doubleClicked.connect(self.display_album)
         self.ui.backButton.clicked.connect(self.back_to_artists)
+        self.ui.albumsTree.itemDoubleClicked.connect(self.add_to_queue)
         self.setup_tabs()
         self.setup_shortcuts()
         self.toggle_play()
@@ -370,8 +371,8 @@ class QuchingWindow(QMainWindow):
             item.setIcon(0, QIcon("cat.png"))
             item.setToolTip(0, a[0])
             for t in tracks:
-                track = QTreeWidgetItem(item, [F"{t[3]}.", t[1], utils.ms_to_str(int(t[2] * 1000))])
-                track.setWhatsThis(0, t[1])
+                track = QTreeWidgetItem(item, [F"{t[3]}. {t[1]}", utils.ms_to_str(int(t[2] * 1000))])
+                track.setWhatsThis(0, t[0])
 
     def display_album(self):
         pass
@@ -379,3 +380,11 @@ class QuchingWindow(QMainWindow):
     def back_to_artists(self):
         self.ui.album_widget.hide()
         self.ui.artists_list.show()
+    
+    def add_to_queue(self, item, column):
+        file = item.whatsThis(0)
+        self.player.queue.append(file)
+        tags = taglib.File(file).tags
+        item = QStandardItem(F"{" & ".join(tags["ARTIST"])} - {tags["TITLE"][0]}")
+        item.setWhatsThis(file)
+        self.ui.queue_model.appendRow(item)
