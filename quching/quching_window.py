@@ -5,10 +5,10 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform, QStandardItemModel, QStandardItem, QShortcut, QKeySequence)
-from PySide6.QtWidgets import (QApplication, QDockWidget, QGridLayout, QHBoxLayout,
+from PySide6.QtWidgets import (QApplication, QDockWidget, QGridLayout, QHBoxLayout, QVBoxLayout,
     QLabel, QListView, QMainWindow, QMenuBar,
     QSizePolicy, QSlider, QTabWidget, QToolButton,
-    QWidget, QAbstractSlider, QAbstractItemView)
+    QWidget, QAbstractSlider, QAbstractItemView, QTreeWidget, QTreeWidgetItem)
 from PySide6.QtMultimedia import QMediaMetaData, QMediaPlayer
 import quching.utils as utils
 import taglib
@@ -74,6 +74,22 @@ class QuchingUI(object):
         self.artists_list.setFlow(QListView.Flow.LeftToRight)
         self.artists_list.setProperty("isWrapping", True)
         self.artists_list.setViewMode(QListView.ViewMode.IconMode)
+        self.album_widget = QWidget(self.artists_tab)
+        self.album_widget.setObjectName(u"album_widget")
+        self.verticalLayout_2 = QVBoxLayout(self.album_widget)
+        self.verticalLayout_2.setObjectName(u"verticalLayout_2")
+        self.backButton = QToolButton(self.album_widget)
+        self.backButton.setObjectName(u"backButton")
+        icon = QIcon(QIcon.fromTheme(QIcon.ThemeIcon.GoPrevious))
+        self.backButton.setIcon(icon)
+        self.verticalLayout_2.addWidget(self.backButton)
+        self.albumsTree = QTreeWidget(self.album_widget)
+        self.albumsTree.setObjectName(u"albumsTree")
+        self.albumsTree.setHeaderHidden(True)
+        self.albumsTree.setColumnCount(3)
+        self.verticalLayout_2.addWidget(self.albumsTree)
+        self.gridLayout_5.addWidget(self.album_widget)
+        self.album_widget.hide()
 
         self.gridLayout_5.addWidget(self.artists_list, 0, 0, 1, 1)
 
@@ -252,6 +268,9 @@ class QuchingWindow(QMainWindow):
         self.ui.volume_slider.setValue(int(self.player.output.volume() * 100))
         self.ui.volume_percent.setText(F"{self.ui.volume_slider.value()}%")
         self.ui.queue_model.rowsRemoved.connect(self.rearrange_queue)
+        self.ui.artists_list.doubleClicked.connect(self.display_artist)
+        self.ui.albums_list.doubleClicked.connect(self.display_album)
+        self.ui.backButton.clicked.connect(self.back_to_artists)
         self.setup_tabs()
         self.setup_shortcuts()
         self.toggle_play()
@@ -338,3 +357,25 @@ class QuchingWindow(QMainWindow):
         # self.media_next.activated.connect(self.player.play_next)
         # self.media_previous = QShortcut(QKeySequence(Qt.Key.Key_MediaPrevious), self)
         # self.media_previous.activated.connect(self.player.play_previous)
+    
+    def display_artist(self, index):
+        self.ui.artists_list.hide()
+        self.ui.album_widget.show()
+        self.ui.albumsTree.clear()
+        artist = index.data()
+        albums = db.get_artist_albums(artist)
+        for a in albums:
+            tracks = db.get_album_tracks(artist, a[0])
+            item = QTreeWidgetItem(self.ui.albumsTree, a)
+            item.setIcon(0, QIcon("cat.png"))
+            item.setToolTip(0, a[0])
+            for t in tracks:
+                track = QTreeWidgetItem(item, [F"{t[3]}.", t[1], utils.ms_to_str(int(t[2] * 1000))])
+                track.setWhatsThis(0, t[1])
+
+    def display_album(self):
+        pass
+    
+    def back_to_artists(self):
+        self.ui.album_widget.hide()
+        self.ui.artists_list.show()
