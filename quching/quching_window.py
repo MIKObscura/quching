@@ -390,7 +390,13 @@ class QuchingWindow(QMainWindow):
         for a in albums:
             tracks = db.get_album_tracks(artist, a[0])
             item = QTreeWidgetItem(self.ui.albumsTree, a)
-            item.setIcon(0, QIcon("cat.png"))
+            try:
+                cover = QByteArray(audio_metadata.load(tracks[0][0])["pictures"][0].data)
+                pixmap = QPixmap()
+                pixmap.loadFromData(cover)
+                item.setIcon(0, QIcon(pixmap)) # TODO: figure out how to make these less tiny
+            except Exception:
+                item.setIcon(0, QIcon("cat.png"))
             item.setToolTip(0, a[0])
             for t in tracks:
                 track = QTreeWidgetItem(item, [F"{t[3]}. {t[1]}", utils.ms_to_str(int(t[2] * 1000))])
