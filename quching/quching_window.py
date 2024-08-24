@@ -1,17 +1,18 @@
 from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
     QMetaObject, QObject, QPoint, QRect,
-    QSize, QTime, QUrl, Qt, QSize)
+    QSize, QTime, QUrl, Qt, QSize, QByteArray)
 from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform, QStandardItemModel, QStandardItem, QShortcut, QKeySequence)
 from PySide6.QtWidgets import (QApplication, QDockWidget, QGridLayout, QHBoxLayout, QVBoxLayout,
     QLabel, QListView, QMainWindow, QMenuBar,
-    QSizePolicy, QSlider, QTabWidget, QToolButton,
+    QSizePolicy, QSlider, QTabWidget, QToolButton, QListWidget,
     QWidget, QAbstractSlider, QAbstractItemView, QTreeWidget, QTreeWidgetItem)
 from PySide6.QtMultimedia import QMediaMetaData, QMediaPlayer
 import quching.utils as utils
 import taglib
+import audio_metadata
 import quching.indexer.database as db
 
 class QuchingUI(object):
@@ -98,6 +99,25 @@ class QuchingUI(object):
         self.albums_tab.setObjectName(u"albums_tab")
         self.gridLayout_6 = QGridLayout(self.albums_tab)
         self.gridLayout_6.setObjectName(u"gridLayout_6")
+        self.tracklist_widget = QWidget(self.albums_tab)
+        self.tracklist_widget.setObjectName(u"tracklist_widget")
+        self.gridLayout_8 = QGridLayout(self.tracklist_widget)
+        self.gridLayout_8.setObjectName(u"gridLayout_6")
+        self.album_tracks = QTreeWidget(self.tracklist_widget)
+        self.album_tracks.setColumnCount(2)
+        self.album_tracks.setHeaderLabels(["Title", "Duration"])
+        self.album_tracks.setObjectName(u"album_tracks")
+        self.gridLayout_8.addWidget(self.album_tracks, 2, 0, 1, 1)
+        self.cover_art = QLabel(self.tracklist_widget)
+        self.cover_art.setObjectName(u"cover_art")
+        self.gridLayout_8.addWidget(self.cover_art, 1, 0, 1, 1, Qt.AlignmentFlag.AlignHCenter)
+        self.back_button2 = QToolButton(self.tracklist_widget)
+        self.back_button2.setObjectName(u"back_button2")
+        self.back_button2.setIcon(icon)
+        self.gridLayout_8.addWidget(self.back_button2, 0, 0, 1, 1)
+        self.gridLayout_6.addWidget(self.tracklist_widget, 1, 0, 1, 1)
+        self.tracklist_widget.hide()
+
         self.albums_list = QListView(self.albums_tab)
         self.albums_list.setGridSize(QSize(100, 100))
         self.albums_list.setResizeMode(QListView.ResizeMode.Adjust)
@@ -271,7 +291,9 @@ class QuchingWindow(QMainWindow):
         self.ui.artists_list.doubleClicked.connect(self.display_artist)
         self.ui.albums_list.doubleClicked.connect(self.display_album)
         self.ui.backButton.clicked.connect(self.back_to_artists)
+        self.ui.back_button2.clicked.connect(self.back_to_albums)
         self.ui.albumsTree.itemDoubleClicked.connect(self.add_to_queue)
+        self.ui.album_tracks.itemDoubleClicked.connect(self.add_to_queue)
         self.setup_tabs()
         self.setup_shortcuts()
         self.toggle_play()
@@ -374,12 +396,31 @@ class QuchingWindow(QMainWindow):
                 track = QTreeWidgetItem(item, [F"{t[3]}. {t[1]}", utils.ms_to_str(int(t[2] * 1000))])
                 track.setWhatsThis(0, t[0])
 
-    def display_album(self):
-        pass
-    
+    def display_album(self, index):
+        self.ui.albums_list.hide()
+        self.ui.tracklist_widget.show()
+        self.ui.album_tracks.clear()
+        album, artist = index.data().split(" - ")
+        tracks = db.get_album_tracks(artist, album)
+        try:
+            cover = QByteArray(audio_metadata.load(tracks[0][0])["pictures"][0].data)
+            pixmap = QPixmap()
+            pixmap.loadFromData(cover)
+            self.ui.cover_art.setPixmap(pixmap.scaled(QSize(200,200)))
+        except Exception as e:
+            print(e.args)
+            self.ui.cover_art.setPixmap(QPixmap.fromImage(QImage("cat.png")))
+        for t in tracks:
+            track = QTreeWidgetItem(self.ui.album_tracks, [F"{t[3]}. {t[1]}", utils.ms_to_str(int(t[2] * 1000))])
+            track.setWhatsThis(0, t[0])
+
     def back_to_artists(self):
         self.ui.album_widget.hide()
         self.ui.artists_list.show()
+    
+    def back_to_albums(self):
+        self.ui.tracklist_widget.hide()
+        self.ui.albums_list.show()
     
     def add_to_queue(self, item, column):
         file = item.whatsThis(0)
