@@ -4,7 +4,7 @@ from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
 from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
-    QPalette, QPixmap, QRadialGradient, QTransform, QStandardItemModel, QStandardItem)
+    QPalette, QPixmap, QRadialGradient, QTransform, QStandardItemModel, QStandardItem, QShortcut, QKeySequence)
 from PySide6.QtWidgets import (QApplication, QDockWidget, QGridLayout, QHBoxLayout,
     QLabel, QListView, QMainWindow, QMenuBar,
     QSizePolicy, QSlider, QTabWidget, QToolButton,
@@ -253,6 +253,7 @@ class QuchingWindow(QMainWindow):
         self.ui.volume_percent.setText(F"{self.ui.volume_slider.value()}%")
         self.ui.queue_model.rowsRemoved.connect(self.rearrange_queue)
         self.setup_tabs()
+        self.setup_shortcuts()
         self.toggle_play()
     
     def load(self, status):
@@ -327,3 +328,13 @@ class QuchingWindow(QMainWindow):
             item.setIcon(QIcon("cat.png"))
             item.setToolTip(F"{a[0]} - {a[1]}")
             self.ui.albums_model.appendRow(item)
+    
+    def setup_shortcuts(self):
+        self.space = QShortcut(QKeySequence(Qt.Key.Key_Space), self)
+        self.space.activated.connect(self.toggle_play)
+        # self.media_play = QShortcut(QKeySequence(Qt.Key.Key_MediaTogglePlayPause), self)
+        # self.media_play.activated.connect(self.toggle_play)
+        # self.media_next = QShortcut(QKeySequence(Qt.Key.Key_MediaNext), self)
+        # self.media_next.activated.connect(self.player.play_next)
+        # self.media_previous = QShortcut(QKeySequence(Qt.Key.Key_MediaPrevious), self)
+        # self.media_previous.activated.connect(self.player.play_previous)
