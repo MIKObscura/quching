@@ -429,6 +429,10 @@ class QuchingWindow(QMainWindow):
         self.ui.albums_list.show()
     
     def add_to_queue(self, item, column):
+        if item.childCount() != 0:
+            for i in range(item.childCount()):
+                self.add_to_queue(item.child(i), column)
+            return
         file = item.whatsThis(0)
         self.player.queue.append(file)
         tags = taglib.File(file).tags
