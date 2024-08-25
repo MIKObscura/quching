@@ -15,6 +15,8 @@ class CueSheet:
         self.cue_file = filename
         self.files = []
         self.tracks = []
+        self.title = None
+        self.artist = None
     
     def add_file(self, file):
         self.files.append(file)

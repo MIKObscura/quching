@@ -1,7 +1,6 @@
 import taglib
 import re
 from .cuesheet import CueSheet
-from functools import wraps
 
 COMMANDS = {}
 
@@ -27,6 +26,10 @@ def parse(file):
     with open(file) as sheet:
         for line in sheet.readlines():
             comm, params = parse_command(line.strip())
+            if comm in IGNORED_COMMANDS:
+                continue
+            COMMANDS[comm](params, cue_sheet)
+        print(cue_sheet.__dict__)
 
 def parse_command(line):
     regex = r"^([A-Z]+)\s+(.*)$"
@@ -48,22 +51,34 @@ def parse_params(string):
 
     return params
 
+def index_to_sec(index):
+    mins, secs, frames = index.split(":")
+    return int(mins) * 60 + int(secs) + round(int(frames) / 75)
+
 @command("FILE")
-def parse_file(params):
-    return res[0]
+def parse_file(params, cue):
+    cue.add_file(params[0])
 
 @command("INDEX")
-def parse_index(params):
-    pass
+def parse_index(params, cue):
+    if params[0] != "01": # other indexes indicate pre/post gap, real beginning is at index 01
+        return
+    cue.set_track_timestamp(index_to_sec(params[1]))
 
 @command("PERFORMER")
-def parse_performer(params):
-    pass
+def parse_performer(params, cue):
+    if cue.artist is None:
+        cue.set_artist(params[0])
+    else:
+        cue.set_track_artist(params[0])
 
 @command("TITLE")
-def parse_title(params):
-    pass
+def parse_title(params, cue):
+    if cue.title is None:
+        cue.set_title(params[0])
+    else:
+        cue.set_track_title(params[0])
 
 @command("TRACK")
-def parse_track(params):
-    pass
+def parse_track(params, cue):
+    cue.add_track(int(params[0]))
