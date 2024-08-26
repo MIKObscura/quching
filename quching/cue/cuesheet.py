@@ -4,9 +4,10 @@ from dataclasses import dataclass, field
 class Track:
     tracknumber: int
     file: str
-    title: str = ""
-    timestamp: int = 0
-    artist: str = ""
+    title: str = None
+    timestamp: int = None
+    duration: int = None
+    artist: str = None
 
 
 class CueSheet:
@@ -29,6 +30,10 @@ class CueSheet:
     
     def set_track_timestamp(self, timestamp):
         self.tracks[-1].timestamp = timestamp
+        if len(self.tracks) == 1:
+            self.tracks[-1].duration = timestamp
+        else:
+            self.tracks[-1].duration = timestamp - self.tracks[-2].timestamp
     
     def set_track_artist(self, artist):
         self.tracks[-1].artist = artist

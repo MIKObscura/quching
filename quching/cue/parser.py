@@ -23,13 +23,19 @@ IGNORED_COMMANDS = [
 
 def parse(file):
     cue_sheet = CueSheet(file)
-    with open(file) as sheet:
+    with open(file, errors="ignore") as sheet:
         for line in sheet.readlines():
-            comm, params = parse_command(line.strip())
-            if comm in IGNORED_COMMANDS:
-                continue
-            COMMANDS[comm](params, cue_sheet)
-        print(cue_sheet.__dict__)
+            try:
+                comm, params = parse_command(line.strip())
+                if comm in IGNORED_COMMANDS:
+                    continue
+                COMMANDS[comm](params, cue_sheet)
+            except Exception:
+                return None
+        return cue_sheet if check_cue(cue_sheet) else None
+
+def check_cue(cue):
+    return all(cue.__dict__) and all(all(v is not None for v in t.__dict__.values()) for t in cue.tracks)
 
 def parse_command(line):
     regex = r"^([A-Z]+)\s+(.*)$"
