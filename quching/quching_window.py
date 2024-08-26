@@ -366,9 +366,9 @@ class QuchingWindow(QMainWindow):
             item.setToolTip(a)
             self.ui.artists_model.appendRow(item)
         for a in albums:
-            item = QStandardItem(F"{a[1]} - {a[0]}")
+            item = QStandardItem(F"{a["album"]} - {a["artist"]}")
             item.setIcon(QIcon("cat.png"))
-            item.setToolTip(F"{a[0]} - {a[1]}")
+            item.setToolTip(F"{a["artist"]} - {a["album"]}")
             self.ui.albums_model.appendRow(item)
     
     def setup_shortcuts(self):
@@ -388,7 +388,7 @@ class QuchingWindow(QMainWindow):
         artist = index.data()
         albums = db.get_artist_albums(artist)
         for a in albums:
-            tracks = db.get_album_tracks(artist, a[0])
+            tracks = db.get_album_tracks(artist, a["album"])
             item = QTreeWidgetItem(self.ui.albumsTree, a)
             try:
                 cover = QByteArray(audio_metadata.load(tracks[0][0])["pictures"][0].data)
@@ -399,8 +399,11 @@ class QuchingWindow(QMainWindow):
                 item.setIcon(0, QIcon("cat.png"))
             item.setToolTip(0, a[0])
             for t in tracks:
-                track = QTreeWidgetItem(item, [F"{t[3]}. {t[1]}", utils.ms_to_str(int(t[2] * 1000))])
-                track.setWhatsThis(0, t[0])
+                if "cue" in t.keys():
+                    pass
+                else:
+                    track = QTreeWidgetItem(item, [F"{t["tracknumber"]}. {t["title"]}", utils.ms_to_str(int(t["duration"] * 1000))])
+                    track.setWhatsThis(0, t["filename"])
 
     def display_album(self, index):
         self.ui.albums_list.hide()
@@ -417,8 +420,11 @@ class QuchingWindow(QMainWindow):
             print(e.args)
             self.ui.cover_art.setPixmap(QPixmap.fromImage(QImage("cat.png")))
         for t in tracks:
-            track = QTreeWidgetItem(self.ui.album_tracks, [F"{t[3]}. {t[1]}", utils.ms_to_str(int(t[2] * 1000))])
-            track.setWhatsThis(0, t[0])
+            if t["cue"] is not None:
+                pass
+            else:
+                track = QTreeWidgetItem(self.ui.album_tracks, [F"{t["tracknumber"]}. {t["title"]}", utils.ms_to_str(int(t["duration"] * 1000))])
+                track.setWhatsThis(0, t["filename"])
 
     def back_to_artists(self):
         self.ui.album_widget.hide()

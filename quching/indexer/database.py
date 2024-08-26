@@ -18,16 +18,18 @@ def insert_cue(cue, file, artist, album, title, duration, timestamp):
 
 def get_artists():
     index = sqlite3.connect("index.db")
+    index.row_factory = sqlite3.Row
     index_cur = index.cursor()
     artists = index_cur.execute("select distinct artist \
         from audio_files \
         union select distinct artist from cue_sheets \
-        order by lower(artist)").fetchall()
+        order by artist collate nocase").fetchall()
     index.close()
-    return [a[0] for a in artists]
+    return [a["artist"] for a in artists]
 
 def get_albums():
     index = sqlite3.connect("index.db")
+    index.row_factory = sqlite3.Row
     index_cur = index.cursor()
     albums = index_cur.execute("select artist, album \
         from audio_files \
@@ -42,6 +44,7 @@ def get_albums():
 
 def get_artist_albums(artist):
     index = sqlite3.connect("index.db")
+    index.row_factory = sqlite3.Row
     index_cur = index.cursor()
     albums = index_cur.execute("select distinct album \
         from audio_files as a \
@@ -54,6 +57,7 @@ def get_artist_albums(artist):
 
 def get_album_tracks(artist, album):
     index = sqlite3.connect("index.db")
+    index.row_factory = sqlite3.Row
     index_cur = index.cursor()
     tracks = index_cur.execute("select filename, title, duration, tracknumber \
         from audio_files \
