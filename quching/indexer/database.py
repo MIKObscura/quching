@@ -21,6 +21,7 @@ def get_artists():
     index_cur = index.cursor()
     artists = index_cur.execute("select distinct artist \
         from audio_files \
+        union select distinct artist from cue_sheets \
         order by lower(artist)").fetchall()
     index.close()
     return [a[0] for a in artists]
@@ -32,10 +33,10 @@ def get_albums():
         from audio_files \
         group by artist, album \
         order by lower(album)").fetchall()
-    # albums += index_cur.execute("select artist, album \
-    #     from cue_sheets \
-    #     group by artist, album \
-    #     order by lower(album)").fetchall()
+    albums += index_cur.execute("select artist, album \
+        from cue_sheets \
+        group by artist, album \
+        order by lower(album)").fetchall()
     index.close()
     return sorted(albums, key=lambda a: a[1].lower())
 
@@ -44,10 +45,10 @@ def get_artist_albums(artist):
     index_cur = index.cursor()
     albums = index_cur.execute("select distinct album \
         from audio_files as a \
-        where a.artist = ? ", [artist]).fetchall()
-        # union select distinct album \
-        # from cue_sheets as c \
-        # where c.artist = ?", (artist, artist)).fetchall()
+        where a.artist = ? \
+        union select distinct album \
+        from cue_sheets as c \
+        where c.artist = ?", (artist, artist)).fetchall()
     index.close()
     return albums
 
