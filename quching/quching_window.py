@@ -400,7 +400,10 @@ class QuchingWindow(QMainWindow):
             item.setToolTip(0, a[0])
             for t in tracks:
                 if "cue" in t.keys():
-                    pass
+                    tracknumber = item.childCount() + 1
+                    track = QTreeWidgetItem(item, [F"{tracknumber}. {t["title"]}", utils.ms_to_str(int(t["duration"] * 1000))])
+                    track.setWhatsThis(0, F"cue://{t["cue"]}/{tracknumber}")
+                    print(track.whatsThis(0))
                 else:
                     track = QTreeWidgetItem(item, [F"{t["tracknumber"]}. {t["title"]}", utils.ms_to_str(int(t["duration"] * 1000))])
                     track.setWhatsThis(0, t["filename"])

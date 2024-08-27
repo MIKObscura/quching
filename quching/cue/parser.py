@@ -1,5 +1,7 @@
 import taglib
 import re
+import os
+from difflib import SequenceMatcher
 from .cuesheet import CueSheet
 
 COMMANDS = {}
@@ -32,10 +34,31 @@ def parse(file):
                 COMMANDS[comm](params, cue_sheet)
             except Exception:
                 return None
+        cue_sheet = check_files(cue_sheet)
         return cue_sheet if check_cue(cue_sheet) else None
 
+def parse_url(url):
+    return re.findall(r"cue://(.*.cue)/([0-9]*)", url)[0]
+
 def check_cue(cue):
-    return all(cue.__dict__) and all(all(v is not None for v in t.__dict__.values()) for t in cue.tracks)
+    sheet_ok =  all(cue.__dict__) # check for null values in the CueSheet fields
+    tracks_ok = all(all(v is not None for v in t.__dict__.values()) for t in cue.tracks) # checks all the fields of the tracks for null values
+    compliant = all(not any(t1.file == t2.file and t1.timestamp == 0 and t2.timestamp == 0 and t1.title != t2.title for t2 in cue.tracks) for t1 in cue.tracks) # some sheets (mostly those produced by EAC) may be non-compliant because of gaps appended to the previous file
+    return sheet_ok and tracks_ok and compliant
+
+def check_files(cue): # it seems that files in a cue sheet can have the wrong extension and it should still work, wtf?
+    directory = os.path.dirname(cue.cue_file)
+    files_in_dir = os.listdir(directory)
+    new_files = []
+    for f in cue.files:
+        if f not in files_in_dir:
+            closest_file = sorted(files_in_dir, key=lambda x: SequenceMatcher(None, f, x).ratio(), reverse=True)[0]
+            new_files.append(closest_file)
+            for t in cue.tracks:
+                if t.file == f:
+                    t.file = closest_file
+    cue.files = new_files
+    return cue
 
 def parse_command(line):
     regex = r"^([A-Z]+)\s+(.*)$"

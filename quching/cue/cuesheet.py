@@ -30,10 +30,10 @@ class CueSheet:
     
     def set_track_timestamp(self, timestamp):
         self.tracks[-1].timestamp = timestamp
-        if len(self.tracks) == 1:
-            self.tracks[-1].duration = timestamp
-        else:
+        if len(self.tracks) != 1:
             self.tracks[-1].duration = timestamp - self.tracks[-2].timestamp
+            if self.tracks[-2].timestamp == 0:
+                self.tracks[-2].duration = timestamp
     
     def set_track_artist(self, artist):
         self.tracks[-1].artist = artist
