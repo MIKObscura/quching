@@ -14,6 +14,7 @@ import quching.utils as utils
 import taglib
 import audio_metadata
 import quching.indexer.database as db
+from quching.cue import parser
 
 class QuchingUI(object):
     def setupUi(self, MainWindow):
@@ -308,12 +309,24 @@ class QuchingWindow(QMainWindow):
     def change_meta(self, media=None):
         if self.player.player.mediaStatus() != QMediaPlayer.MediaStatus.LoadedMedia:
             return
-        self.ui.artistLabel.setText(" & ".join(self.player.get_metadata().value(QMediaMetaData.Key.ContributingArtist)))
-        self.ui.albumLabel.setText(self.player.get_metadata().value(QMediaMetaData.Key.AlbumTitle))
-        self.ui.titleLabel.setText(self.player.get_metadata().value(QMediaMetaData.Key.Title))
+        if self.player.get_current_track().startswith("cue://"):
+            cue_file, tracknumber = parser.parse_url(self.player.get_current_track())
+            cue_sheet = parser.parse(cue_file)
+            track = cue_sheet.tracks[int(tracknumber) - 1]
+            self.ui.artistLabel.setText(track.artist)
+            self.ui.albumLabel.setText(cue_sheet.title)
+            self.ui.titleLabel.setText(track.title)
+            self.ui.seek_slider.setMaximum(track.duration * 1000 + track.timestamp * 1000)
+            self.ui.seek_slider.setMinimum(track.timestamp * 1000)
+            self.player.player.setPosition(track.timestamp * 1000)
+            self.ui.total_time.setText(utils.ms_to_str(track.duration * 1000))
+        else:
+            self.ui.artistLabel.setText(" & ".join(self.player.get_metadata().value(QMediaMetaData.Key.ContributingArtist)))
+            self.ui.albumLabel.setText(self.player.get_metadata().value(QMediaMetaData.Key.AlbumTitle))
+            self.ui.titleLabel.setText(self.player.get_metadata().value(QMediaMetaData.Key.Title))
+            self.ui.seek_slider.setMaximum(self.player.player.duration())
+            self.ui.total_time.setText(utils.ms_to_str(self.player.player.duration()))
         self.ui.trackLabel.setText(F"{self.player.current_track+1}/{len(self.player.queue)}")
-        self.ui.seek_slider.setMaximum(self.player.player.duration())
-        self.ui.total_time.setText(utils.ms_to_str(self.player.player.duration()))
         self.change_thumbnail()
     
     def change_thumbnail(self):
@@ -332,8 +345,12 @@ class QuchingWindow(QMainWindow):
         self.player.toggle_play()
     
     def update_pos(self, pos):
-        self.ui.seek_slider.setValue(pos)
-        self.ui.curr_time.setText(utils.ms_to_str(pos))
+        if self.player.get_current_track().startswith("cue://"):
+            self.ui.seek_slider.setValue(pos)
+            self.ui.curr_time.setText(utils.ms_to_str(pos - self.ui.seek_slider.minimum()))
+        else:
+            self.ui.seek_slider.setValue(pos)
+            self.ui.curr_time.setText(utils.ms_to_str(pos))
     
     def update_vol(self, vol):
         self.player.output.setVolume(float(vol) / 100)
@@ -403,7 +420,6 @@ class QuchingWindow(QMainWindow):
                     tracknumber = item.childCount() + 1
                     track = QTreeWidgetItem(item, [F"{tracknumber}. {t["title"]}", utils.ms_to_str(int(t["duration"] * 1000))])
                     track.setWhatsThis(0, F"cue://{t["cue"]}/{tracknumber}")
-                    print(track.whatsThis(0))
                 else:
                     track = QTreeWidgetItem(item, [F"{t["tracknumber"]}. {t["title"]}", utils.ms_to_str(int(t["duration"] * 1000))])
                     track.setWhatsThis(0, t["filename"])
@@ -443,8 +459,16 @@ class QuchingWindow(QMainWindow):
                 self.add_to_queue(item.child(i), column)
             return
         file = item.whatsThis(0)
-        self.player.queue.append(file)
-        tags = taglib.File(file).tags
-        item = QStandardItem(F"{" & ".join(tags["ARTIST"])} - {tags["TITLE"][0]}")
-        item.setWhatsThis(file)
-        self.ui.queue_model.appendRow(item)
+        if file.startswith("cue://"):
+            cue_file, tracknumber = parser.parse_url(file)
+            cue_sheet = parser.parse(cue_file)
+            track = cue_sheet.tracks[int(tracknumber) - 1]
+            item = QStandardItem(F"{track.artist} - {track.title}")
+            item.setWhatsThis(file)
+            self.ui.queue_model.appendRow(item)
+        else:
+            self.player.queue.append(file)
+            tags = taglib.File(file).tags
+            item = QStandardItem(F"{" & ".join(tags["ARTIST"])} - {tags["TITLE"][0]}")
+            item.setWhatsThis(file)
+            self.ui.queue_model.appendRow(item)

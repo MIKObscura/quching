@@ -1,5 +1,7 @@
 from PySide6.QtMultimedia import QMediaPlayer, QAudioOutput, QMediaMetaData
 from PySide6.QtCore import QObject, QUrl
+from quching.cue import parser
+import os
 
 
 class QuchingPlayer(QObject):
@@ -22,7 +24,13 @@ class QuchingPlayer(QObject):
             self.current_track = 0
         else:
             self.current_track += 1
-        self.player.setSource(QUrl.fromLocalFile(self.queue[self.current_track]))
+        if self.get_current_track().startswith("cue://"):
+            cue_file, tracknumber = parser.parse_url(self.get_current_track())
+            cue_sheet = parser.parse(cue_file)
+            track = cue_sheet.tracks[int(tracknumber) - 1]
+            self.player.setSource(QUrl.fromLocalFile(os.path.join(os.path.dirname(cue_file), track.file)))
+        else:
+            self.player.setSource(QUrl.fromLocalFile(self.get_current_track()))
         if was_playing:
             self.player.play()
     
@@ -33,7 +41,13 @@ class QuchingPlayer(QObject):
                 self.current_track = len(self.queue) - 1
             else: 
                 self.current_track -= 1
-            self.player.setSource(QUrl.fromLocalFile(self.queue[self.current_track]))
+            if self.get_current_track().startswith("cue://"):
+                cue_file, tracknumber = parser.parse_url(self.get_current_track())
+                cue_sheet = parser.parse(cue_file)
+                track = cue_sheet.tracks[int(tracknumber) - 1]
+                self.player.setSource(QUrl.fromLocalFile(os.path.join(os.path.dirname(cue_file), track.file)))
+            else:
+                self.player.setSource(QUrl.fromLocalFile(self.get_current_track()))
             if was_playing:
                 self.player.play()
         else:
