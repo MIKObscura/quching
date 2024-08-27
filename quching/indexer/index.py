@@ -47,7 +47,7 @@ def make_index():
     cue_files = get_all_files_in_cues(cues)
     files = [file for file in files if file not in cue_files]
     index_cues(cues)
-    index_files(files)
+    #index_files(files)
 
 def index_files(files):
     for f in files:

@@ -23,6 +23,8 @@ IGNORED_COMMANDS = [
     "SONGWRITER"
 ] # these commands aren't useful in our case so we can safely ignore them
 
+EXTENSIONS = [".flac", ".mp3", ".wav", ".ogg", ".m4a", ".aac", ".alac"]
+
 def parse(file):
     cue_sheet = CueSheet(file)
     with open(file, errors="ignore") as sheet:
@@ -44,11 +46,13 @@ def check_cue(cue):
     sheet_ok =  all(cue.__dict__) # check for null values in the CueSheet fields
     tracks_ok = all(all(v is not None for v in t.__dict__.values()) for t in cue.tracks) # checks all the fields of the tracks for null values
     compliant = all(not any(t1.file == t2.file and t1.timestamp == 0 and t2.timestamp == 0 and t1.title != t2.title for t2 in cue.tracks) for t1 in cue.tracks) # some sheets (mostly those produced by EAC) may be non-compliant because of gaps appended to the previous file
-    return sheet_ok and tracks_ok and compliant
+    files_ok = all(os.path.splitext(f)[1].lower() in EXTENSIONS for f in cue.files)
+    return sheet_ok and tracks_ok and compliant and files_ok
 
 def check_files(cue): # it seems that files in a cue sheet can have the wrong extension and it should still work, wtf?
     directory = os.path.dirname(cue.cue_file)
     files_in_dir = os.listdir(directory)
+    files_in_dir.remove(os.path.basename(cue.cue_file))
     new_files = []
     for f in cue.files:
         if f not in files_in_dir:
@@ -57,6 +61,8 @@ def check_files(cue): # it seems that files in a cue sheet can have the wrong ex
             for t in cue.tracks:
                 if t.file == f:
                     t.file = closest_file
+        else:
+            new_files.append(f)
     cue.files = new_files
     return cue
 
