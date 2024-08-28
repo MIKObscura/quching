@@ -459,6 +459,7 @@ class QuchingWindow(QMainWindow):
                 self.add_to_queue(item.child(i), column)
             return
         file = item.whatsThis(0)
+        self.player.queue.append(file)
         if file.startswith("cue://"):
             cue_file, tracknumber = parser.parse_url(file)
             cue_sheet = parser.parse(cue_file)
