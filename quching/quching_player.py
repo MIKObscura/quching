@@ -24,6 +24,9 @@ class QuchingPlayer(QObject):
     
     def play_next(self):
         was_playing = self.player.isPlaying()
+        if len(self.queue) == 0:
+            self.player.stop()
+            return
         if self.repeat:
             self.player.setPosition(0)
             if was_playing:
@@ -45,6 +48,9 @@ class QuchingPlayer(QObject):
     
     def play_previous(self):
         was_playing = self.player.isPlaying()
+        if len(self.queue) == 0:
+            self.player.stop()
+            return
         if self.repeat:
             self.player.setPosition(0)
             if was_playing:

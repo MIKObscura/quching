@@ -321,6 +321,7 @@ class QuchingWindow(QMainWindow):
         self.ui.album_tracks.itemDoubleClicked.connect(self.add_to_queue)
         self.ui.shuffle_button.toggled.connect(self.toggle_shuffle)
         self.ui.repeat_button.toggled.connect(self.player.toggle_repeat)
+        self.ui.clear_button.clicked.connect(self.clear_queue)
         self.setup_tabs()
         self.setup_shortcuts()
         self.toggle_play()
@@ -372,12 +373,8 @@ class QuchingWindow(QMainWindow):
         self.player.toggle_play()
     
     def update_pos(self, pos):
-        if self.player.get_current_track().startswith("cue://"):
-            self.ui.seek_slider.setValue(pos)
-            self.ui.curr_time.setText(utils.ms_to_str(pos - self.ui.seek_slider.minimum()))
-        else:
-            self.ui.seek_slider.setValue(pos)
-            self.ui.curr_time.setText(utils.ms_to_str(pos))
+        self.ui.seek_slider.setValue(pos)
+        self.ui.curr_time.setText(utils.ms_to_str(pos - self.ui.seek_slider.minimum()))
     
     def update_vol(self, vol):
         self.player.output.setVolume(float(vol) / 100)
@@ -512,8 +509,15 @@ class QuchingWindow(QMainWindow):
             item.setWhatsThis(file)
             self.ui.queue_model.appendRow(item)
     
-    def toggle_shuffle(self, checked):
+    def toggle_shuffle(self, _):
         self.queue_setup = True
         self.player.toggle_shuffle()
+        self.ui.queue_model.clear()
+        self.setup_queue()
+    
+    def clear_queue(self, _):
+        self.queue_setup = True
+        self.player.queue = []
+        self.player.current_track = -1
         self.ui.queue_model.clear()
         self.setup_queue()
