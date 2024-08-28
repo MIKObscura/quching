@@ -320,6 +320,7 @@ class QuchingWindow(QMainWindow):
         self.ui.albumsTree.itemDoubleClicked.connect(self.add_to_queue)
         self.ui.album_tracks.itemDoubleClicked.connect(self.add_to_queue)
         self.ui.shuffle_button.toggled.connect(self.toggle_shuffle)
+        self.ui.repeat_button.toggled.connect(self.player.toggle_repeat)
         self.setup_tabs()
         self.setup_shortcuts()
         self.toggle_play()

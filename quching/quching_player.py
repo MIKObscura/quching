@@ -24,6 +24,11 @@ class QuchingPlayer(QObject):
     
     def play_next(self):
         was_playing = self.player.isPlaying()
+        if self.repeat:
+            self.player.setPosition(0)
+            if was_playing:
+                self.player.play()
+            return
         if self.current_track + 1 >= len(self.queue):
             self.current_track = 0
         else:
@@ -40,6 +45,11 @@ class QuchingPlayer(QObject):
     
     def play_previous(self):
         was_playing = self.player.isPlaying()
+        if self.repeat:
+            self.player.setPosition(0)
+            if was_playing:
+                self.player.play()
+            return
         if (self.player.position() / self.player.duration()) < 0.5:
             if self.current_track - 1 < 0:
                 self.current_track = len(self.queue) - 1
@@ -83,4 +93,4 @@ class QuchingPlayer(QObject):
             self.current_track = current_track
 
     def toggle_repeat(self):
-        pass
+        self.repeat = not self.repeat
