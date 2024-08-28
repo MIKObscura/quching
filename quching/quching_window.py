@@ -324,6 +324,7 @@ class QuchingWindow(QMainWindow):
             self.ui.artistLabel.setText(" & ".join(self.player.get_metadata().value(QMediaMetaData.Key.ContributingArtist)))
             self.ui.albumLabel.setText(self.player.get_metadata().value(QMediaMetaData.Key.AlbumTitle))
             self.ui.titleLabel.setText(self.player.get_metadata().value(QMediaMetaData.Key.Title))
+            self.ui.seek_slider.setMinimum(0)
             self.ui.seek_slider.setMaximum(self.player.player.duration())
             self.ui.total_time.setText(utils.ms_to_str(self.player.player.duration()))
         self.ui.trackLabel.setText(F"{self.player.current_track+1}/{len(self.player.queue)}")
