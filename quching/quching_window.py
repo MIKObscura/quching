@@ -38,8 +38,31 @@ class QuchingUI(object):
         self.queue_dock_widget.setObjectName(u"queue_dock_widget")
         self.queue_dock.setStyleSheet("#queue_dock_widget { background-image: url(cat.png); background-position: bottom left; background-repeat: no-repeat }")
         self.queue_dock_widget.setStyleSheet("#queue_view { background-color: rgba(0,0,0,0%) } #queue_view::item { padding-top: 5px }")
-        self.gridLayout_3 = QGridLayout(self.queue_dock_widget)
+        self.verticalLayout_3 = QVBoxLayout(self.queue_dock_widget)
+        self.verticalLayout_3.setObjectName(u"verticalLayout_3")
+        self.queue_controls = QWidget(self.queue_dock_widget)
+        self.queue_controls.setObjectName(u"queue_controls")
+        self.gridLayout_3 = QGridLayout(self.queue_controls)
         self.gridLayout_3.setObjectName(u"gridLayout_3")
+        self.clear_button = QToolButton(self.queue_controls)
+        self.clear_button.setObjectName(u"clear_button")
+        icon = QIcon(QIcon.fromTheme(QIcon.ThemeIcon.WindowClose))
+        self.clear_button.setIcon(icon)
+        self.gridLayout_3.addWidget(self.clear_button, 0, 0, 1, 1, Qt.AlignmentFlag.AlignLeft)
+        self.repeat_button = QToolButton(self.queue_controls)
+        self.repeat_button.setObjectName(u"repeat_button")
+        icon1 = QIcon(QIcon.fromTheme(QIcon.ThemeIcon.MediaPlaylistRepeat))
+        self.repeat_button.setIcon(icon1)
+        self.repeat_button.setCheckable(True)
+        self.gridLayout_3.addWidget(self.repeat_button, 0, 1, 1, 1, Qt.AlignmentFlag.AlignLeft)
+        self.shuffle_button = QToolButton(self.queue_controls)
+        self.shuffle_button.setObjectName(u"shuffle_button")
+        icon2 = QIcon(QIcon.fromTheme(QIcon.ThemeIcon.MediaPlaylistShuffle))
+        self.shuffle_button.setIcon(icon2)
+        self.shuffle_button.setCheckable(True)
+        self.shuffle_button.setChecked(False)
+        self.gridLayout_3.addWidget(self.shuffle_button, 0, 2, 1, 1, Qt.AlignmentFlag.AlignLeft)
+        self.verticalLayout_3.addWidget(self.queue_controls)
         self.queue_view = QListView(self.queue_dock_widget)
         self.queue_view.setObjectName(u"queue_view")
         self.queue_model = QStandardItemModel()
@@ -48,7 +71,7 @@ class QuchingUI(object):
         #self.queue_view.setDefaultDropAction(Qt.DropAction.MoveAction)
         self.queue_view.setDragDropMode(QAbstractItemView.InternalMove)
 
-        self.gridLayout_3.addWidget(self.queue_view, 0, 0, 1, 1)
+        self.verticalLayout_3.addWidget(self.queue_view)
 
         self.queue_dock.setWidget(self.queue_dock_widget)
         MainWindow.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.queue_dock)
@@ -277,6 +300,7 @@ class QuchingWindow(QMainWindow):
         self.ui = QuchingUI()
         self.ui.setupUi(self)
         self.player = player
+        self.queue_setup = False
         self.setup_queue()
         self.player.player.mediaStatusChanged.connect(self.load)
         self.ui.play_button.clicked.connect(self.toggle_play)
@@ -295,6 +319,7 @@ class QuchingWindow(QMainWindow):
         self.ui.back_button2.clicked.connect(self.back_to_albums)
         self.ui.albumsTree.itemDoubleClicked.connect(self.add_to_queue)
         self.ui.album_tracks.itemDoubleClicked.connect(self.add_to_queue)
+        self.ui.shuffle_button.toggled.connect(self.toggle_shuffle)
         self.setup_tabs()
         self.setup_shortcuts()
         self.toggle_play()
@@ -361,13 +386,25 @@ class QuchingWindow(QMainWindow):
         self.player.player.setPosition(pos)
     
     def setup_queue(self):
+        self.queue_setup = True
         for i in self.player.queue:
-            tags = taglib.File(i).tags
-            item = QStandardItem(F"{" & ".join(tags["ARTIST"])} - {tags["TITLE"][0]}")
-            item.setWhatsThis(i)
-            self.ui.queue_model.appendRow(item)
+            if i.startswith("cue://"):
+                cue_file, tracknumber = parser.parse_url(i)
+                cue_sheet = parser.parse(cue_file)
+                track = cue_sheet.tracks[int(tracknumber) - 1]
+                item = QStandardItem(F"{track.artist} - {track.title}")
+                item.setWhatsThis(i)
+                self.ui.queue_model.appendRow(item)
+            else:
+                tags = taglib.File(i).tags
+                item = QStandardItem(F"{" & ".join(tags["ARTIST"])} - {tags["TITLE"][0]}")
+                item.setWhatsThis(i)
+                self.ui.queue_model.appendRow(item)
+        self.queue_setup = False
     
     def rearrange_queue(self, *args):
+        if self.queue_setup:
+            return
         new_queue = []
         for i in range(self.ui.queue_model.rowCount()):
             new_queue.append(self.ui.queue_model.item(i).whatsThis())
@@ -469,8 +506,13 @@ class QuchingWindow(QMainWindow):
             item.setWhatsThis(file)
             self.ui.queue_model.appendRow(item)
         else:
-            self.player.queue.append(file)
             tags = taglib.File(file).tags
             item = QStandardItem(F"{" & ".join(tags["ARTIST"])} - {tags["TITLE"][0]}")
             item.setWhatsThis(file)
             self.ui.queue_model.appendRow(item)
+    
+    def toggle_shuffle(self, checked):
+        self.queue_setup = True
+        self.player.toggle_shuffle()
+        self.ui.queue_model.clear()
+        self.setup_queue()

@@ -1,6 +1,7 @@
 from PySide6.QtMultimedia import QMediaPlayer, QAudioOutput, QMediaMetaData
 from PySide6.QtCore import QObject, QUrl
 from quching.cue import parser
+from random import sample
 import os
 
 
@@ -8,9 +9,12 @@ class QuchingPlayer(QObject):
     
     def __init__(self, paths, volume=1):
         self.queue = paths
+        self.unshuffled_queue = paths
         self.current_track = 0
         self.player = QMediaPlayer()
         self.output = QAudioOutput()
+        self.shuffle = False
+        self.repeat = False
         self.output.setVolume(volume)
         self.player.setAudioOutput(self.output)
         self.player.setSource(QUrl.fromLocalFile(self.queue[0]))
@@ -63,3 +67,20 @@ class QuchingPlayer(QObject):
     
     def get_current_track(self):
         return self.queue[self.current_track]
+    
+    def toggle_shuffle(self):
+        self.shuffle = not self.shuffle
+        if self.shuffle:
+            shuffled_queue = sample(self.queue, len(self.queue))
+            current_track = shuffled_queue.index(self.get_current_track())
+            shuffled_queue.insert(0, shuffled_queue.pop(current_track))
+            self.unshuffled_queue = self.queue.copy()
+            self.queue = shuffled_queue.copy()
+            self.current_track = 0
+        else:
+            current_track = self.unshuffled_queue.index(self.get_current_track())
+            self.queue = self.unshuffled_queue.copy()
+            self.current_track = current_track
+
+    def toggle_repeat(self):
+        pass
