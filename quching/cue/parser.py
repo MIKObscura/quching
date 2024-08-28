@@ -40,7 +40,7 @@ def parse(file):
         return cue_sheet if check_cue(cue_sheet) else None
 
 def parse_url(url):
-    return re.findall(r"cue://(.*.cue)/([0-9]*)", url)[0]
+    return re.findall(r"cue://(.*\.cue)/([0-9]*)", url)[0]
 
 def check_cue(cue):
     sheet_ok =  all(cue.__dict__) # check for null values in the CueSheet fields
