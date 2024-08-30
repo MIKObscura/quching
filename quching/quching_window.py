@@ -14,6 +14,7 @@ import quching.utils as utils
 import taglib
 import audio_metadata
 import quching.indexer.database as db
+import os
 from quching.cue import parser
 
 class QuchingUI(object):
@@ -453,16 +454,20 @@ class QuchingWindow(QMainWindow):
         album, artist = index.data().split(" - ")
         tracks = db.get_album_tracks(artist, album)
         try:
-            cover = QByteArray(audio_metadata.load(tracks[0][0])["pictures"][0].data)
+            filename = tracks[0]["filename"]
+            if "cue" in tracks[0].keys():
+                filename = os.path.join(os.path.dirname(tracks[0]["cue"]), tracks[0]["filename"])
+            cover = QByteArray(audio_metadata.load(filename)["pictures"][0].data)
             pixmap = QPixmap()
             pixmap.loadFromData(cover)
             self.ui.cover_art.setPixmap(pixmap.scaled(QSize(200,200)))
         except Exception as e:
             print(e.args)
             self.ui.cover_art.setPixmap(QPixmap.fromImage(QImage("cat.png")))
-        for t in tracks:
-            if t["cue"] is not None:
-                pass
+        for idx, t in enumerate(tracks):
+            if "cue" in t.keys():
+                track = QTreeWidgetItem(self.ui.album_tracks, [F"{idx + 1}. {t["title"]}", utils.ms_to_str(int(t["duration"] * 1000))])
+                track.setWhatsThis(0, F"cue://{t["cue"]}/{idx + 1}")
             else:
                 track = QTreeWidgetItem(self.ui.album_tracks, [F"{t["tracknumber"]}. {t["title"]}", utils.ms_to_str(int(t["duration"] * 1000))])
                 track.setWhatsThis(0, t["filename"])
