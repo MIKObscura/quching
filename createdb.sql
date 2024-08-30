@@ -11,7 +11,7 @@ CREATE TABLE "audio_files" (
 CREATE TABLE "cue_sheets" (
 	"id"	INTEGER UNIQUE,
 	"cue"	TEXT,
-	"file"	TEXT,
+	"filename"	TEXT,
 	"artist"	TEXT,
 	"album"	TEXT,
 	"timestamp"	INTEGER,

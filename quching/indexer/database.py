@@ -11,7 +11,7 @@ def insert_file(filename, artist, album, title, duration, tracknumber):
 def insert_cue(cue, file, artist, album, title, duration, timestamp):
     index = sqlite3.connect("index.db")
     index_cur = index.cursor()
-    index_cur.execute("insert into cue_sheets (cue, file, artist, album, title, duration, timestamp) values (?, ?, ?, ?, ?, ?, ?)",
+    index_cur.execute("insert into cue_sheets (cue, filename, artist, album, title, duration, timestamp) values (?, ?, ?, ?, ?, ?, ?)",
     (cue, file, artist, album, title, duration, timestamp))
     index.commit()
     index.close()
@@ -66,7 +66,7 @@ def get_album_tracks(artist, album):
     if len(tracks) > 0:
         index.close()
         return tracks
-    tracks = index_cur.execute("select cue, file, title, timestamp, duration \
+    tracks = index_cur.execute("select cue, filename, title, timestamp, duration \
         from cue_sheets \
         where artist=? and album=? \
         order by timestamp", (artist, album)).fetchall()
