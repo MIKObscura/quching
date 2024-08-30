@@ -8,7 +8,7 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
 from PySide6.QtWidgets import (QApplication, QDockWidget, QGridLayout, QHBoxLayout, QVBoxLayout,
     QLabel, QListView, QMainWindow, QMenuBar,
     QSizePolicy, QSlider, QTabWidget, QToolButton, QListWidget,
-    QWidget, QAbstractSlider, QAbstractItemView, QTreeWidget, QTreeWidgetItem)
+    QWidget, QAbstractSlider, QAbstractItemView, QTreeWidget, QTreeWidgetItem, QSizePolicy)
 from PySide6.QtMultimedia import QMediaMetaData, QMediaPlayer
 import quching.utils as utils
 import taglib
@@ -23,24 +23,23 @@ class QuchingUI(object):
         main_window.resize(800, 600)
         self.central_widget = QWidget(main_window)
         self.central_widget.setObjectName(u"centralwidget")
-        self.central_widget_layout = QGridLayout(self.central_widget)
+        self.central_widget_layout = QHBoxLayout(self.central_widget)
         self.central_widget_layout.setObjectName(u"central_widget_layout")
         main_window.setCentralWidget(self.central_widget)
         self.menubar = QMenuBar(main_window)
         self.menubar.setObjectName(u"menubar")
         self.menubar.setGeometry(QRect(0, 0, 800, 22))
         main_window.setMenuBar(self.menubar)
-        self.queue_dock = QDockWidget(main_window)
-        self.queue_dock.setObjectName(u"queue_dock")
-        self.queue_dock.setFloating(False)
-        self.queue_dock.setFeatures(QDockWidget.DockWidgetFeature.DockWidgetMovable)
-        self.queue_dock_widget = QWidget()
-        self.queue_dock_widget.setObjectName(u"queue_dock_widget")
-        self.queue_dock.setStyleSheet("#queue_dock_widget { background-image: url(cat.png); background-position: bottom left; background-repeat: no-repeat }")
-        self.queue_dock_widget.setStyleSheet("#queue_view { background-color: rgba(0,0,0,0%) } #queue_view::item { padding-top: 5px }")
-        self.queue_dock_layout = QVBoxLayout(self.queue_dock_widget)
-        self.queue_dock_layout.setObjectName(u"queue_dock_layout")
-        self.queue_controls = QWidget(self.queue_dock_widget)
+        self.queue_widget = QWidget(self.central_widget)
+        self.queue_widget.setObjectName(u"queue_widget")
+        self.queue_widget.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
+        self.central_widget.setStyleSheet("#queue_widget { background-image: url(cat.png); background-position: bottom left; background-repeat: no-repeat }")
+        self.queue_widget.setStyleSheet("#queue_view { background-color: rgba(0,0,0,0%) } #queue_view::item { padding-top: 5px }")
+        self.queue_layout = QVBoxLayout(self.queue_widget)
+        self.queue_layout.setObjectName(u"queue_layout")
+        self.queue_controls = QWidget(self.queue_widget)
+        self.queue_controls.setObjectName(u"queue_controls")
+        self.queue_controls = QWidget(self.queue_widget)
         self.queue_controls.setObjectName(u"queue_controls")
         self.queue_controls_layout = QGridLayout(self.queue_controls)
         self.queue_controls_layout.setObjectName(u"queue_controls_layout ")
@@ -62,28 +61,17 @@ class QuchingUI(object):
         self.shuffle_button.setCheckable(True)
         self.shuffle_button.setChecked(False)
         self.queue_controls_layout.addWidget(self.shuffle_button, 0, 2, 1, 1, Qt.AlignmentFlag.AlignLeft)
-        self.queue_dock_layout.addWidget(self.queue_controls)
-        self.queue_view = QListView(self.queue_dock_widget)
+        self.queue_layout.addWidget(self.queue_controls)
+        self.queue_view = QListView(self.queue_widget)
         self.queue_view.setObjectName(u"queue_view")
         self.queue_model = QStandardItemModel()
         self.queue_view.setModel(self.queue_model)
         self.queue_view.setMovement(QListView.Movement.Snap)
         #self.queue_view.setDefaultDropAction(Qt.DropAction.MoveAction)
         self.queue_view.setDragDropMode(QAbstractItemView.InternalMove)
+        self.queue_layout.addWidget(self.queue_view)
 
-        self.queue_dock_layout.addWidget(self.queue_view)
-
-        self.queue_dock.setWidget(self.queue_dock_widget)
-        main_window.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.queue_dock)
-        self.browser_dock = QDockWidget(main_window)
-        self.browser_dock.setObjectName(u"browser_dock")
-        self.browser_dock.setFeatures(QDockWidget.DockWidgetFeature.DockWidgetMovable)
-        self.browser_dock.setAllowedAreas(Qt.DockWidgetArea.AllDockWidgetAreas)
-        self.browser_dock_widget = QWidget()
-        self.browser_dock_widget.setObjectName(u"browser_dock_widget")
-        self.browser_dock_layout = QGridLayout(self.browser_dock_widget)
-        self.browser_dock_layout.setObjectName(u"browser_dock_layout")
-        self.browser_tabs = QTabWidget(self.browser_dock_widget)
+        self.browser_tabs = QTabWidget(self.central_widget)
         self.browser_tabs.setObjectName(u"browser_tabs")
         self.artists_tab = QWidget()
         self.artists_tab.setObjectName(u"artists_tab")
@@ -141,6 +129,7 @@ class QuchingUI(object):
         self.tracklist_layout.addWidget(self.back_button2, 0, 0, 1, 1)
         self.albums_tab_layout.addWidget(self.tracklist_widget, 1, 0, 1, 1)
         self.tracklist_widget.hide()
+        self.central_widget_layout.addWidget(self.queue_widget)
 
         self.albums_list = QListView(self.albums_tab)
         self.albums_list.setGridSize(QSize(100, 100))
@@ -166,15 +155,12 @@ class QuchingUI(object):
         self.playlists_list.setFlow(QListView.Flow.LeftToRight)
         self.playlists_list.setProperty("isWrapping", True)
         self.playlists_list.setViewMode(QListView.ViewMode.IconMode)
-
         self.playlist_layout.addWidget(self.playlists_list, 0, 0, 1, 1)
 
         self.browser_tabs.addTab(self.playlists_tab, "")
 
-        self.browser_dock_layout.addWidget(self.browser_tabs, 0, 0, 1, 1)
+        self.central_widget_layout.addWidget(self.browser_tabs)
 
-        self.browser_dock.setWidget(self.browser_dock_widget)
-        main_window.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.browser_dock)
         self.controls_dock = QDockWidget(main_window)
         self.controls_dock.setObjectName(u"controls_dock")
         #self.controls_dock.setStyleSheet("#controls_dock_widget { background-image: url(cat.png); background-position: bottom center; background-repeat: no-repeat }")
@@ -360,10 +346,10 @@ class QuchingWindow(QMainWindow):
     def change_thumbnail(self):
         img = self.player.get_metadata().value(QMediaMetaData.Key.ThumbnailImage)
         if img is None:
-            self.ui.queue_dock.setStyleSheet("#queue_dock_widget { background-image: url(cat.png); background-position: bottom left; background-repeat: no-repeat; background-attachment: fixed; }")
+            self.ui.central_widget.setStyleSheet("#queue_widget { background-image: url(cat.png); background-position: bottom left; background-repeat: no-repeat; background-attachment: fixed; }")
             return
         img.scaled(QSize(320, 320)).save("/tmp/bg.jpg")
-        self.ui.queue_dock.setStyleSheet("#queue_dock_widget { background-image: url(/tmp/bg.jpg); background-position: bottom left; background-repeat: no-repeat; background-attachment: fixed; }")
+        self.ui.central_widget.setStyleSheet("#queue_widget { background-image: url(/tmp/bg.jpg); background-position: bottom left; background-repeat: no-repeat; background-attachment: fixed; }")
     
     def toggle_play(self):
         if self.ui.play_button.icon().name() == QIcon.fromTheme(QIcon.ThemeIcon.MediaPlaybackStart).name():
