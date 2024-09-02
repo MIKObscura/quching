@@ -16,6 +16,20 @@ def insert_cue(cue, file, artist, album, title, duration, timestamp):
     index.commit()
     index.close()
 
+def delete_file(file):
+    index = sqlite3.connect("index.db")
+    index_cur = index.cursor()
+    index_cur.execute("delete from audio_files where filename = ?", file)
+    index.commit()
+    index.close()
+
+def delete_cue(cue):
+    index = sqlite3.connect("index.db")
+    index_cur = index.cursor()
+    index_cur.execute("delete from cue_sheets where cue = ?", cue)
+    index.commit()
+    index.close()
+
 def get_artists():
     index = sqlite3.connect("index.db")
     index.row_factory = sqlite3.Row
@@ -72,6 +86,22 @@ def get_album_tracks(artist, album):
         order by timestamp", (artist, album)).fetchall()
     index.close()
     return tracks
+
+def get_all_files():
+    index = sqlite3.connect("index.db")
+    index.row_factory = sqlite3.Row
+    index_cur = index.cursor()
+    files = index_cur.execute("select distinct filename from audio_files").fetchall()
+    index.close()
+    return [f["filename"] for f in files]
+
+def get_all_cues():
+    index = sqlite3.connect("index.db")
+    index.row_factory = sqlite3.Row
+    index_cur = index.cursor()
+    files = index_cur.execute("select distinct cue from cue_sheets").fetchall()
+    index.close()
+    return [f["cue"] for f in files]
 
 def create_db():
     index = sqlite3.connect("index.db")

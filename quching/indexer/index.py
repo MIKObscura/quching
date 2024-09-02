@@ -3,6 +3,7 @@ from pathlib import Path
 import sqlite3
 import os
 import taglib
+from itertools import chain
 import quching.indexer.database as db
 from quching.cue import parser
 
@@ -33,10 +34,7 @@ def get_tracknumber(string):
         return int(string.split("/")[0])
 
 def get_all_files_in_cues(cues):
-    files = []
-    for c in cues:
-        files += c.files
-    return files
+    return list(chain.from_iterable(map(lambda x: x.files, cues)))
 
 def make_index():
     if "index.db" not in os.listdir("."):
@@ -45,7 +43,7 @@ def make_index():
     cues = find_cues()
     cues = parse_cues(cues)
     cue_files = get_all_files_in_cues(cues)
-    files = [file for file in files if file not in cue_files]
+    files = [file for file in files if os.path.basename(file) not in cue_files]
     index_cues(cues)
     index_files(files)
 
@@ -80,3 +78,25 @@ def index_cues(cues):
     for c in cues:
         for t in c.tracks:
             db.insert_cue(c.cue_file, t.file, t.artist, c.title, t.title, t.duration, t.timestamp)
+
+def refresh_index():
+    if "index.db" not in os.listdir("."):
+        make_index()
+        return
+    local_files = find_files()
+    local_cues = find_cues()
+    local_cues = parse_cues(local_cues)
+    local_cue_files = get_all_files_in_cues(local_cues)
+    local_files = [file for file in local_files if os.path.basename(file) not in local_cue_files]
+    db_files = db.get_all_files()
+    db_cues = db.get_all_cues()
+    new_files = list(set(local_files).difference(db_files))
+    index_files(new_files)
+    removed_files = list(set(db_files).difference(local_files))
+    for f in removed_files:
+        db.delete_file(f)
+    new_cues = list(set([c.cue_file for c in local_cues]).difference(db_cues))
+    index_cues(parse_cues(new_cues))
+    removed_cues = list(set(db_cues).difference([c.cue_file for c in local_cues]))
+    for c in removed_cues:
+        db.delete_cue(c)
