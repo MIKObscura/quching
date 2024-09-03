@@ -15,6 +15,7 @@ import taglib
 import audio_metadata
 import quching.indexer.database as db
 import os
+from multiprocessing import Process
 from quching.cue import parser
 
 class QuchingUI(object):
@@ -79,7 +80,8 @@ class QuchingUI(object):
         self.artist_tab_layout = QGridLayout(self.artists_tab)
         self.artist_tab_layout.setObjectName(u"artist_tab_layout")
         self.artists_list = QListView(self.artists_tab)
-        self.artists_list.setGridSize(QSize(100, 100))
+        self.artists_list.setGridSize(QSize(150, 150))
+        self.artists_list.setIconSize(QSize(150,150))
         self.artists_list.setResizeMode(QListView.ResizeMode.Adjust)
         self.artists_model = QStandardItemModel()
         self.artists_list.setModel(self.artists_model)
@@ -101,6 +103,7 @@ class QuchingUI(object):
         self.albums_tree.setObjectName(u"albums_tree")
         self.albums_tree.setColumnCount(2)
         self.albums_tree.setHeaderLabels(["Title", "Duration"])
+        self.albums_tree.setIconSize(QSize(100,100))
         self.album_widget_layout.addWidget(self.albums_tree)
         self.artist_tab_layout.addWidget(self.album_widget)
         self.album_widget.hide()
@@ -133,7 +136,8 @@ class QuchingUI(object):
         self.central_widget_layout.addWidget(self.queue_widget)
 
         self.albums_list = QListView(self.albums_tab)
-        self.albums_list.setGridSize(QSize(100, 100))
+        self.albums_list.setGridSize(QSize(200, 200))
+        self.albums_list.setIconSize(QSize(150, 150))
         self.albums_list.setResizeMode(QListView.ResizeMode.Adjust)
         self.albums_model = QStandardItemModel()
         self.albums_list.setModel(self.albums_model)
@@ -309,7 +313,8 @@ class QuchingWindow(QMainWindow):
         self.ui.shuffle_button.toggled.connect(self.toggle_shuffle)
         self.ui.repeat_button.toggled.connect(self.player.toggle_repeat)
         self.ui.clear_button.clicked.connect(self.clear_queue)
-        self.setup_tabs()
+        self.setup_artists()
+        self.setup_albums()
         self.setup_shortcuts()
         self.toggle_play()
     
@@ -397,17 +402,26 @@ class QuchingWindow(QMainWindow):
         self.player.queue = new_queue
         self.player.current_track = new_current
     
-    def setup_tabs(self):
+    def setup_artists(self):
         artists = db.get_artists()
-        albums = db.get_albums()
         for a in artists:
             item = QStandardItem(a)
             item.setIcon(QIcon("artist.png"))
             item.setToolTip(a)
             self.ui.artists_model.appendRow(item)
+
+    def setup_albums(self):
+        albums = db.get_albums()
         for a in albums:
-            item = QStandardItem(F"{a["album"]} - {a["artist"]}")
-            item.setIcon(QIcon("cat.png"))
+            icon = QIcon("cat.png")
+            # try: # TODO: figure out how to not block everything when first rendered
+            #     cover = QByteArray(audio_metadata.load(db.get_track(a["artist"], a["album"])["filename"])["pictures"][0].data)
+            #     pixmap = QPixmap()
+            #     pixmap.loadFromData(cover)
+            #     icon = QIcon(pixmap.scaled(QSize(200,200)))
+            # except Exception:
+            #     icon = QIcon("cat.png")
+            item = QStandardItem(icon, F"{a["album"]} - {a["artist"]}")
             item.setToolTip(F"{a["artist"]} - {a["album"]}")
             self.ui.albums_model.appendRow(item)
     
@@ -430,11 +444,12 @@ class QuchingWindow(QMainWindow):
         for a in albums:
             tracks = db.get_album_tracks(artist, a["album"])
             item = QTreeWidgetItem(self.ui.albums_tree, a)
+            item.setFirstColumnSpanned(True)
             try:
                 cover = QByteArray(audio_metadata.load(tracks[0][0])["pictures"][0].data)
                 pixmap = QPixmap()
                 pixmap.loadFromData(cover)
-                item.setIcon(0, QIcon(pixmap)) # TODO: figure out how to make these less tiny
+                item.setIcon(0, QIcon(pixmap))
             except Exception:
                 item.setIcon(0, QIcon("cat.png"))
             item.setToolTip(0, a[0])

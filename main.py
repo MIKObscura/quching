@@ -10,10 +10,10 @@ if __name__=="__main__":
 
     player = QuchingPlayer(sys.argv[1:], 0)
     quching = QuchingWindow(player)
-    indexer = Process(target=refresh_index, daemon=True)
+    # indexer = Process(target=refresh_index, daemon=True)
     quching.show()
-    indexer.start()
+    # indexer.start()
 
     app.exec()
 
-    indexer.join()
+    # indexer.join()

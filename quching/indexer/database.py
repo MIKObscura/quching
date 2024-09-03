@@ -87,6 +87,24 @@ def get_album_tracks(artist, album):
     index.close()
     return tracks
 
+def get_track(artist, album):
+    index = sqlite3.connect("index.db")
+    index.row_factory = sqlite3.Row
+    index_cur = index.cursor()
+    track = index_cur.execute("select filename, title, duration, tracknumber \
+        from audio_files \
+        where artist=? and album=? \
+        order by tracknumber", (artist, album)).fetchone()
+    if track is not None:
+        index.close()
+        return track
+    track = index_cur.execute("select cue, filename, title, timestamp, duration \
+        from cue_sheets \
+        where artist=? and album=? \
+        order by timestamp", (artist, album)).fetchone()
+    index.close()
+    return track
+
 def get_all_files():
     index = sqlite3.connect("index.db")
     index.row_factory = sqlite3.Row
