@@ -8,7 +8,7 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
 from PySide6.QtWidgets import (QApplication, QDockWidget, QGridLayout, QHBoxLayout, QVBoxLayout,
     QLabel, QListView, QMainWindow, QMenuBar,
     QSizePolicy, QSlider, QTabWidget, QToolButton, QListWidget,
-    QWidget, QAbstractSlider, QAbstractItemView, QTreeWidget, QTreeWidgetItem, QSizePolicy)
+    QWidget, QAbstractSlider, QAbstractItemView, QTreeWidget, QTreeWidgetItem, QSizePolicy, QSpacerItem)
 from PySide6.QtMultimedia import QMediaMetaData, QMediaPlayer
 import quching.utils as utils
 import taglib
@@ -47,21 +47,23 @@ class QuchingUI(object):
         self.queue_controls_layout.setObjectName(u"queue_controls_layout ")
         self.clear_button = QToolButton(self.queue_controls)
         self.clear_button.setObjectName(u"clear_button")
-        icon = QIcon(QIcon.fromTheme(QIcon.ThemeIcon.WindowClose))
-        self.clear_button.setIcon(icon)
+        icon_clear = QIcon(QIcon.fromTheme(QIcon.ThemeIcon.WindowClose))
+        self.clear_button.setIcon(icon_clear)
         self.queue_controls_layout.addWidget(self.clear_button, 0, 0, 1, 1, Qt.AlignmentFlag.AlignLeft)
         self.repeat_button = QToolButton(self.queue_controls)
         self.repeat_button.setObjectName(u"repeat_button")
-        icon1 = QIcon(QIcon.fromTheme(QIcon.ThemeIcon.MediaPlaylistRepeat))
-        self.repeat_button.setIcon(icon1)
+        icon_repeat = QIcon(QIcon.fromTheme(QIcon.ThemeIcon.MediaPlaylistRepeat))
+        self.repeat_button.setIcon(icon_repeat)
         self.repeat_button.setCheckable(True)
         self.queue_controls_layout.addWidget(self.repeat_button, 0, 1, 1, 1, Qt.AlignmentFlag.AlignLeft)
         self.shuffle_button = QToolButton(self.queue_controls)
         self.shuffle_button.setObjectName(u"shuffle_button")
-        icon2 = QIcon(QIcon.fromTheme(QIcon.ThemeIcon.MediaPlaylistShuffle))
-        self.shuffle_button.setIcon(icon2)
+        icon_shuffle = QIcon(QIcon.fromTheme(QIcon.ThemeIcon.MediaPlaylistShuffle))
+        self.shuffle_button.setIcon(icon_shuffle)
         self.shuffle_button.setCheckable(True)
         self.shuffle_button.setChecked(False)
+        self.queue_controls_spacer = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+        self.queue_controls_layout.addItem(self.queue_controls_spacer, 0, 3, 1, 1)
         self.queue_controls_layout.addWidget(self.shuffle_button, 0, 2, 1, 1, Qt.AlignmentFlag.AlignLeft)
         self.queue_layout.addWidget(self.queue_controls)
         self.queue_view = QListView(self.queue_widget)
@@ -96,8 +98,8 @@ class QuchingUI(object):
         self.album_widget_layout.setObjectName(u"album_widget_layout")
         self.back_button = QToolButton(self.album_widget)
         self.back_button.setObjectName(u"back_button")
-        icon = QIcon(QIcon.fromTheme(QIcon.ThemeIcon.GoPrevious))
-        self.back_button.setIcon(icon)
+        icon_back = QIcon(QIcon.fromTheme(QIcon.ThemeIcon.GoPrevious))
+        self.back_button.setIcon(icon_back)
         self.album_widget_layout.addWidget(self.back_button)
         self.albums_tree = QTreeWidget(self.album_widget)
         self.albums_tree.setObjectName(u"albums_tree")
@@ -107,7 +109,6 @@ class QuchingUI(object):
         self.album_widget_layout.addWidget(self.albums_tree)
         self.artist_tab_layout.addWidget(self.album_widget)
         self.album_widget.hide()
-
         self.artist_tab_layout.addWidget(self.artists_list, 0, 0, 1, 1)
 
         self.browser_tabs.addTab(self.artists_tab, "")
@@ -129,7 +130,7 @@ class QuchingUI(object):
         self.tracklist_layout.addWidget(self.cover_art, 1, 0, 1, 1, Qt.AlignmentFlag.AlignHCenter)
         self.back_button2 = QToolButton(self.tracklist_widget)
         self.back_button2.setObjectName(u"back_button2")
-        self.back_button2.setIcon(icon)
+        self.back_button2.setIcon(icon_back)
         self.tracklist_layout.addWidget(self.back_button2, 0, 0, 1, 1)
         self.albums_tab_layout.addWidget(self.tracklist_widget, 1, 0, 1, 1)
         self.tracklist_widget.hide()
@@ -146,24 +147,56 @@ class QuchingUI(object):
         self.albums_list.setFlow(QListView.Flow.LeftToRight)
         self.albums_list.setProperty("isWrapping", True)
         self.albums_list.setViewMode(QListView.ViewMode.IconMode)
-
         self.albums_tab_layout.addWidget(self.albums_list, 0, 0, 1, 1)
 
         self.browser_tabs.addTab(self.albums_tab, "")
         self.playlists_tab = QWidget()
         self.playlists_tab.setObjectName(u"playlists_tab")
-        self.playlist_layout = QGridLayout(self.playlists_tab)
+        self.playlist_layout = QVBoxLayout(self.playlists_tab)
         self.playlist_layout.setObjectName(u"playlists_layout")
+        self.playlist_view = QWidget(self.playlists_tab)
+        self.playlist_view.setObjectName(u"playlist_view")
+        self.playlist_view_layout = QVBoxLayout(self.playlist_view)
+        self.playlist_view_layout.setObjectName(u"playlist_view_layout")
+        self.back_button3 = QToolButton(self.playlist_view)
+        self.back_button3.setObjectName(u"back_button")
+        self.back_button3.setIcon(icon_back)
+        self.playlist_view_layout.addWidget(self.back_button)
+        self.playlist_tracks = QTreeWidget(self.playlist_view)
+        self.playlist_tracks.setObjectName(u"playlist_tracks")
+        self.playlist_view_layout.addWidget(self.playlist_tracks)
+        self.playlist_layout.addWidget(self.playlist_view)
+        self.playlist_view.hide()
+        self.playlist_edit = QWidget(self.playlists_tab)
+        self.playlist_edit.setObjectName(u"playlist_edit")
+        self.playlist_edit_layout = QHBoxLayout(self.playlist_edit)
+        self.playlist_edit_layout.setObjectName(u"playlist_edit_layout")
+        self.playlist_edit_layout.setContentsMargins(-1, -1, 0, -1)
+        self.new_playlist_button = QToolButton(self.playlist_edit)
+        self.new_playlist_button.setObjectName(u"new_playlist_button")
+        icon_new = QIcon(QIcon.fromTheme(QIcon.ThemeIcon.DocumentNew))
+        self.new_playlist_button.setIcon(icon_new)
+        self.playlist_edit_layout.addWidget(self.new_playlist_button)
+        self.edit_playlist_button = QToolButton(self.playlist_edit)
+        self.edit_playlist_button.setObjectName(u"edit_playlist_button")
+        icon_edit = QIcon(QIcon.fromTheme(QIcon.ThemeIcon.DocumentPageSetup))
+        self.edit_playlist_button.setIcon(icon_edit)
+        self.playlist_edit_layout.addWidget(self.edit_playlist_button)
+        self.delete_playlist_button = QToolButton(self.playlist_edit)
+        self.delete_playlist_button.setObjectName(u"delete_playlist_button")
+        self.delete_playlist_button.setIcon(icon_clear)
+        self.playlist_edit_layout.addWidget(self.delete_playlist_button)
+        self.playlist_edit_spacer = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+        self.playlist_edit_layout.addItem(self.playlist_edit_spacer)
         self.playlists_list = QListView(self.playlists_tab)
         self.playlists_list.setObjectName(u"playlists_list")
         self.playlists_list.setMovement(QListView.Movement.Static)
         self.playlists_list.setFlow(QListView.Flow.LeftToRight)
         self.playlists_list.setProperty("isWrapping", True)
         self.playlists_list.setViewMode(QListView.ViewMode.IconMode)
-        self.playlist_layout.addWidget(self.playlists_list, 0, 0, 1, 1)
-
+        self.playlist_layout.addWidget(self.playlist_edit)
+        self.playlist_layout.addWidget(self.playlists_list)
         self.browser_tabs.addTab(self.playlists_tab, "")
-
         self.central_widget_layout.addWidget(self.browser_tabs)
 
         self.controls_dock = QDockWidget(main_window)
@@ -179,84 +212,56 @@ class QuchingUI(object):
         self.controls_buttons_layout.setObjectName(u"controls_buttons_layout")
         self.prev_button = QToolButton(self.controls_dock_widget)
         self.prev_button.setObjectName(u"prev_button")
-        icon = QIcon(QIcon.fromTheme(QIcon.ThemeIcon.MediaSkipBackward))
-        self.prev_button.setIcon(icon)
+        icon_previous = QIcon(QIcon.fromTheme(QIcon.ThemeIcon.MediaSkipBackward))
+        self.prev_button.setIcon(icon_previous)
         self.prev_button.setIconSize(QSize(24, 24))
-
         self.controls_buttons_layout.addWidget(self.prev_button)
-
         self.play_button = QToolButton(self.controls_dock_widget)
         self.play_button.setObjectName(u"play_button")
-        icon1 = QIcon(QIcon.fromTheme(QIcon.ThemeIcon.MediaPlaybackStart))
-        self.play_button.setIcon(icon1)
+        icon_play = QIcon(QIcon.fromTheme(QIcon.ThemeIcon.MediaPlaybackStart))
+        self.play_button.setIcon(icon_play)
         self.play_button.setIconSize(QSize(24, 24))
-
         self.controls_buttons_layout.addWidget(self.play_button)
-
         self.next_button = QToolButton(self.controls_dock_widget)
         self.next_button.setObjectName(u"next_button")
-        icon2 = QIcon(QIcon.fromTheme(QIcon.ThemeIcon.MediaSkipForward))
-        self.next_button.setIcon(icon2)
+        icon_next = QIcon(QIcon.fromTheme(QIcon.ThemeIcon.MediaSkipForward))
+        self.next_button.setIcon(icon_next)
         self.next_button.setIconSize(QSize(24, 24))
-
         self.controls_buttons_layout.addWidget(self.next_button, 0, Qt.AlignmentFlag.AlignLeft)
-
         self.curr_time = QLabel(self.controls_dock_widget)
         self.curr_time.setObjectName(u"curr_time")
-
         self.controls_buttons_layout.addWidget(self.curr_time)
-
         self.seek_slider = QSlider(self.controls_dock_widget)
         self.seek_slider.setObjectName(u"seek_slider")
         self.seek_slider.setOrientation(Qt.Orientation.Horizontal)
         self.seek_slider.setTracking(False)
-
         self.controls_buttons_layout.addWidget(self.seek_slider)
-
         self.total_time = QLabel(self.controls_dock_widget)
         self.total_time.setObjectName(u"total_time")
-
         self.controls_buttons_layout.addWidget(self.total_time)
-
-
         self.controls_dock_layout.addLayout(self.controls_buttons_layout, 3, 0, 1, 1)
-
         self.volume_percent = QLabel(self.controls_dock_widget)
         self.volume_percent.setObjectName(u"volume_percent")
-
         self.controls_dock_layout.addWidget(self.volume_percent, 7, 0, 1, 1, Qt.AlignmentFlag.AlignRight)
-
         self.labels_layout = QHBoxLayout()
         self.labels_layout.setObjectName(u"labels_layout")
         self.artist_label = QLabel(self.controls_dock_widget)
         self.artist_label.setObjectName(u"artist_label")
-
         self.labels_layout.addWidget(self.artist_label, 0, Qt.AlignmentFlag.AlignLeft)
-
         self.title_label = QLabel(self.controls_dock_widget)
         self.title_label.setObjectName(u"title_label")
-
         self.labels_layout.addWidget(self.title_label, 0, Qt.AlignmentFlag.AlignLeft)
-
         self.album_label = QLabel(self.controls_dock_widget)
         self.album_label.setObjectName(u"album_label")
-
         self.labels_layout.addWidget(self.album_label, 0, Qt.AlignmentFlag.AlignLeft)
-
         self.track_label = QLabel(self.controls_dock_widget)
         self.track_label.setObjectName(u"track_label")
-
         self.labels_layout.addWidget(self.track_label, 0, Qt.AlignmentFlag.AlignLeft)
-
-
         self.controls_dock_layout.addLayout(self.labels_layout, 0, 0, 1, 1)
-
         self.volume_slider = QSlider(self.controls_dock_widget)
         self.volume_slider.setObjectName(u"volume_slider")
         self.volume_slider.setOrientation(Qt.Orientation.Horizontal)
-
         self.controls_dock_layout.addWidget(self.volume_slider, 6, 0, 1, 1, Qt.AlignmentFlag.AlignRight)
-
         self.controls_dock.setWidget(self.controls_dock_widget)
         main_window.addDockWidget(Qt.DockWidgetArea.BottomDockWidgetArea, self.controls_dock)
 
