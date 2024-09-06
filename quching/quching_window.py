@@ -15,7 +15,7 @@ import taglib
 import audio_metadata
 import quching.indexer.database as db
 import os
-from multiprocessing import Process
+from pathlib import Path
 from quching.cue import parser
 
 class QuchingUI(object):
@@ -154,24 +154,15 @@ class QuchingUI(object):
         self.playlists_tab.setObjectName(u"playlists_tab")
         self.playlist_layout = QVBoxLayout(self.playlists_tab)
         self.playlist_layout.setObjectName(u"playlists_layout")
-        self.playlist_view = QWidget(self.playlists_tab)
-        self.playlist_view.setObjectName(u"playlist_view")
-        self.playlist_view_layout = QVBoxLayout(self.playlist_view)
-        self.playlist_view_layout.setObjectName(u"playlist_view_layout")
-        self.back_button3 = QToolButton(self.playlist_view)
-        self.back_button3.setObjectName(u"back_button")
-        self.back_button3.setIcon(icon_back)
-        self.playlist_view_layout.addWidget(self.back_button3)
-        self.playlist_tracks = QTreeWidget(self.playlist_view)
-        self.playlist_tracks.setObjectName(u"playlist_tracks")
-        self.playlist_view_layout.addWidget(self.playlist_tracks)
-        self.playlist_layout.addWidget(self.playlist_view)
-        self.playlist_view.hide()
         self.playlist_edit = QWidget(self.playlists_tab)
         self.playlist_edit.setObjectName(u"playlist_edit")
         self.playlist_edit_layout = QHBoxLayout(self.playlist_edit)
         self.playlist_edit_layout.setObjectName(u"playlist_edit_layout")
         self.playlist_edit_layout.setContentsMargins(-1, -1, 0, -1)
+        self.play_playlist_button = QToolButton(self.playlist_edit)
+        self.play_playlist_button.setObjectName(u"play_playlist_button")
+        self.play_playlist_button.setIcon(QIcon(QIcon.fromTheme(QIcon.ThemeIcon.MediaPlaybackStart)))
+        self.playlist_edit_layout.addWidget(self.play_playlist_button)
         self.new_playlist_button = QToolButton(self.playlist_edit)
         self.new_playlist_button.setObjectName(u"new_playlist_button")
         icon_new = QIcon(QIcon.fromTheme(QIcon.ThemeIcon.DocumentNew))
@@ -188,13 +179,32 @@ class QuchingUI(object):
         self.playlist_edit_layout.addWidget(self.delete_playlist_button)
         self.playlist_edit_spacer = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
         self.playlist_edit_layout.addItem(self.playlist_edit_spacer)
+        self.playlist_layout.addWidget(self.playlist_edit)
+        self.playlist_view = QWidget(self.playlists_tab)
+        self.playlist_view.setObjectName(u"playlist_view")
+        self.playlist_view_layout = QVBoxLayout(self.playlist_view)
+        self.playlist_view_layout.setObjectName(u"playlist_view_layout")
+        self.back_button3 = QToolButton(self.playlist_view)
+        self.back_button3.setObjectName(u"back_button")
+        self.back_button3.setIcon(icon_back)
+        self.playlist_view_layout.addWidget(self.back_button3)
+        self.playlist_tracks = QTreeWidget(self.playlist_view)
+        self.playlist_tracks.setObjectName(u"playlist_tracks")
+        self.playlist_tracks.setIconSize(QSize(64,64))
+        self.playlist_tracks.setHeaderLabels(["","Title", "Duration"])
+        self.playlist_view_layout.addWidget(self.playlist_tracks)
+        self.playlist_layout.addWidget(self.playlist_view)
+        self.playlist_view.hide()
         self.playlists_list = QListView(self.playlists_tab)
         self.playlists_list.setObjectName(u"playlists_list")
         self.playlists_list.setMovement(QListView.Movement.Static)
         self.playlists_list.setFlow(QListView.Flow.LeftToRight)
         self.playlists_list.setProperty("isWrapping", True)
         self.playlists_list.setViewMode(QListView.ViewMode.IconMode)
-        self.playlist_layout.addWidget(self.playlist_edit)
+        self.playlists_list.setIconSize(QSize(100,100))
+        self.playlists_list.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
+        self.playlists_model = QStandardItemModel()
+        self.playlists_list.setModel(self.playlists_model)
         self.playlist_layout.addWidget(self.playlists_list)
         self.browser_tabs.addTab(self.playlists_tab, "")
         self.central_widget_layout.addWidget(self.browser_tabs)
@@ -311,15 +321,20 @@ class QuchingWindow(QMainWindow):
         self.ui.queue_model.rowsRemoved.connect(self.rearrange_queue)
         self.ui.artists_list.doubleClicked.connect(self.display_artist)
         self.ui.albums_list.doubleClicked.connect(self.display_album)
+        self.ui.playlists_list.doubleClicked.connect(self.display_playlist)
         self.ui.back_button.clicked.connect(self.back_to_artists)
         self.ui.back_button2.clicked.connect(self.back_to_albums)
+        self.ui.back_button3.clicked.connect(self.back_to_playlists)
+        self.ui.play_playlist_button.clicked.connect(self.play_playlist)
         self.ui.albums_tree.itemDoubleClicked.connect(self.add_to_queue)
         self.ui.album_tracks.itemDoubleClicked.connect(self.add_to_queue)
+        self.ui.playlist_tracks.itemDoubleClicked.connect(self.add_to_queue)
         self.ui.shuffle_button.toggled.connect(self.toggle_shuffle)
         self.ui.repeat_button.toggled.connect(self.player.toggle_repeat)
         self.ui.clear_button.clicked.connect(self.clear_queue)
         self.setup_artists()
         self.setup_albums()
+        self.setup_playlists()
         self.setup_shortcuts()
         self.toggle_play()
     
@@ -430,6 +445,15 @@ class QuchingWindow(QMainWindow):
             item.setToolTip(F"{a["artist"]} - {a["album"]}")
             self.ui.albums_model.appendRow(item)
     
+    def setup_playlists(self):
+        playlists_dir = Path(os.path.join(str(Path("~").expanduser()), ".config/quching/playlists"))
+        playlists = os.listdir(playlists_dir)
+        for playlist in playlists:
+            item = QStandardItem(QIcon("playlist.png"), Path(os.path.join(playlists_dir, playlist)).stem)
+            item.setWhatsThis(str(os.path.join(playlists_dir, playlist)))
+            item.setFlags(Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled)
+            self.ui.playlists_model.appendRow(item)
+    
     def setup_shortcuts(self):
         self.space = QShortcut(QKeySequence(Qt.Key.Key_Space), self)
         self.space.activated.connect(self.toggle_play)
@@ -492,6 +516,41 @@ class QuchingWindow(QMainWindow):
                 track = QTreeWidgetItem(self.ui.album_tracks, [F"{t["tracknumber"]}. {t["title"]}", utils.ms_to_str(int(t["duration"] * 1000))])
                 track.setWhatsThis(0, t["filename"])
 
+    def display_playlist(self, index):
+        self.ui.playlists_list.hide()
+        self.ui.playlist_view.show()
+        self.ui.playlist_tracks.clear()
+        item = self.ui.playlists_model.itemFromIndex(index)
+        playlist = open(item.whatsThis(), "r").read().splitlines()
+        for idx, line in enumerate(playlist):
+            track = None
+            icon = QIcon("cat.png")
+            if line.startswith("cue://"):
+                track_cue, tracknumber = parser.parse_url(line)
+                cue_sheet = parser.parse(track_cue)
+                cue_track = cue_sheet.tracks[int(tracknumber) - 1]
+                track = QTreeWidgetItem(self.ui.playlist_tracks, ["", F"{idx + 1}. {cue_track.artist} - {cue_track.title}", utils.ms_to_str(int(cue_track.duration * 1000))])
+                try:
+                    cover = QByteArray(audio_metadata.load(os.path.join(os.path.dirname(cue_sheet.cue_file), cue_track.file))["pictures"][0].data)
+                    pixmap = QPixmap()
+                    pixmap.loadFromData(cover)
+                    icon = QIcon(pixmap)
+                except Exception:
+                    icon = QIcon("cat.png")
+            else:
+                track_meta = taglib.File(line)
+                track_tags = track_meta.tags
+                track = QTreeWidgetItem(self.ui.playlist_tracks, ["", F"{idx + 1}. {" & ".join(track_tags["ARTIST"])} - {track_tags["TITLE"][0]}", utils.ms_to_str(int(track_meta.length * 1000))])
+                try:
+                    cover = QByteArray(audio_metadata.load(line)["pictures"][0].data)
+                    pixmap = QPixmap()
+                    pixmap.loadFromData(cover)
+                    icon = QIcon(pixmap)
+                except Exception:
+                    icon = QIcon("cat.png")
+            track.setWhatsThis(0, line)
+            track.setIcon(0, icon)
+
     def back_to_artists(self):
         self.ui.album_widget.hide()
         self.ui.artists_list.show()
@@ -499,6 +558,10 @@ class QuchingWindow(QMainWindow):
     def back_to_albums(self):
         self.ui.tracklist_widget.hide()
         self.ui.albums_list.show()
+    
+    def back_to_playlists(self):
+        self.ui.playlist_view.hide()
+        self.ui.playlists_list.show()
     
     def add_to_queue(self, item, column):
         if item.childCount() != 0:
@@ -532,3 +595,13 @@ class QuchingWindow(QMainWindow):
         self.player.current_track = -1
         self.ui.queue_model.clear()
         self.setup_queue()
+    
+    def play_playlist(self, _):
+        selection_model = self.ui.playlists_list.selectionModel()
+        if selection_model.hasSelection():
+            playlist = self.ui.playlists_model.itemFromIndex(selection_model.selectedIndexes()[0])
+            playlist_tracks = open(playlist.whatsThis(), "r").read().splitlines()
+            self.clear_queue(_)
+            self.player.queue = playlist_tracks
+            self.player.current_track = -1
+            self.setup_queue()
