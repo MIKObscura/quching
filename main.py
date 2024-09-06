@@ -8,7 +8,6 @@ from multiprocessing import Process
 from PySide6.QtWidgets import QApplication
 
 def init_config_dir():
-    Path(os.path.join(str(Path("~").expanduser()), ".config/quching")).mkdir(parents=True, exist_ok=True)
     Path(os.path.join(str(Path("~").expanduser()), ".config/quching/playlists")).mkdir(parents=True, exist_ok=True)
     open(os.path.join(str(Path("~").expanduser()), ".config/quching/blacklist.txt"), "w").close()
 
