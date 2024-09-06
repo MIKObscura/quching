@@ -5,18 +5,17 @@ Quching (pronouned kuching) is a music player written in Python and based on Qt.
 
 
 # Run
-To run it, create a venv and install the requirements, then run it with:
+To run it, you first need to install python 3.8 or newer, create a venv and install the requirements:
+```
+mkdir venv
+python -m venv venv/
+source venv/bin/activate
+pip install -r requirements.txt
+```
 ```
 python main.py path/to/audio/file
 ```
-Note: for now the indexing is not done automatically so you'll have to do it manually, like in the Python console for example:
-```
-$ python
->>> import quching.indexer.index as index
->>> index.make_index()
-```
-This should create an index.db file that will contain all the audio files it found in the `~/Music` directory  
-Yes, the implementation is currently very slow, this will be improved upon in the future
+Note: the initial indexing may take some time if you have a lot of files, you'll also need to re-launch the application once it's done
 
 # Credits
 Cat image used as default cover is from here: https://www.svgrepo.com/svg/452952/cat
