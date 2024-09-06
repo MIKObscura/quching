@@ -19,11 +19,18 @@ def find_cues():
     return glob.glob(str(Path("~").expanduser()) + F"/Music/**/*.cue", recursive=True)
 
 def parse_cues(cues):
+    blacklist = open(os.path.join(str(Path("~").expanduser()), ".config/quching/blacklist.txt"), "a+")
+    blacklisted_files = blacklist.readlines()
     parsed_cues = []
     for c in cues:
+        if c in blacklisted_files:
+            continue
         res = parser.parse(c)
         if res is not None:
             parsed_cues.append(res)
+        else:
+            blacklist.write(c + "\n")
+    blacklist.close()
     return parsed_cues
 
 
@@ -48,7 +55,11 @@ def make_index():
     index_files(files)
 
 def index_files(files):
+    blacklist = open(os.path.join(str(Path("~").expanduser()), ".config/quching/blacklist.txt"), "a+")
+    blacklisted_files = blacklist.readlines()
     for f in files:
+        if f in blacklisted_files:
+            continue
         fileTags = taglib.File(f)
         meta = fileTags.tags
         artist = ""
@@ -58,10 +69,12 @@ def index_files(files):
         try:
             artist = " & ".join(meta["ARTIST"])
         except KeyError:
+            blacklist.write(f + "\n")
             continue
         try:
             title = meta["TITLE"][0]
         except (KeyError, IndexError):
+            blacklist.write(f + "\n")
             continue
         try:
             album = meta["ALBUM"][0]
