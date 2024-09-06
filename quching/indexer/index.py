@@ -20,10 +20,10 @@ def find_cues():
 
 def parse_cues(cues):
     blacklist = open(os.path.join(str(Path("~").expanduser()), ".config/quching/blacklist.txt"), "a+")
-    blacklisted_files = blacklist.readlines()
+    blacklisted_files = open(os.path.join(str(Path("~").expanduser()), ".config/quching/blacklist.txt"), "r").readlines()
     parsed_cues = []
     for c in cues:
-        if c in blacklisted_files:
+        if c + "\n" in blacklisted_files:
             continue
         res = parser.parse(c)
         if res is not None:
@@ -56,9 +56,9 @@ def make_index():
 
 def index_files(files):
     blacklist = open(os.path.join(str(Path("~").expanduser()), ".config/quching/blacklist.txt"), "a+")
-    blacklisted_files = blacklist.readlines()
+    blacklisted_files = open(os.path.join(str(Path("~").expanduser()), ".config/quching/blacklist.txt"), "r").readlines()
     for f in files:
-        if f in blacklisted_files:
+        if f + "\n" in blacklisted_files:
             continue
         fileTags = taglib.File(f)
         meta = fileTags.tags
