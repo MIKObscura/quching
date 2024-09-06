@@ -19,14 +19,14 @@ def insert_cue(cue, file, artist, album, title, duration, timestamp):
 def delete_file(file):
     index = sqlite3.connect("index.db")
     index_cur = index.cursor()
-    index_cur.execute("delete from audio_files where filename = ?", file)
+    index_cur.execute("delete from audio_files where filename = ?", (file,))
     index.commit()
     index.close()
 
 def delete_cue(cue):
     index = sqlite3.connect("index.db")
     index_cur = index.cursor()
-    index_cur.execute("delete from cue_sheets where cue = ?", cue)
+    index_cur.execute("delete from cue_sheets where cue = ?", (cue,))
     index.commit()
     index.close()
 
