@@ -161,7 +161,7 @@ class QuchingUI(object):
         self.back_button3 = QToolButton(self.playlist_view)
         self.back_button3.setObjectName(u"back_button")
         self.back_button3.setIcon(icon_back)
-        self.playlist_view_layout.addWidget(self.back_button)
+        self.playlist_view_layout.addWidget(self.back_button3)
         self.playlist_tracks = QTreeWidget(self.playlist_view)
         self.playlist_tracks.setObjectName(u"playlist_tracks")
         self.playlist_view_layout.addWidget(self.playlist_tracks)
