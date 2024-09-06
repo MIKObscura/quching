@@ -1,4 +1,5 @@
 import sqlite3
+import os
 
 def insert_file(filename, artist, album, title, duration, tracknumber):
     index = sqlite3.connect("index.db")
@@ -31,6 +32,8 @@ def delete_cue(cue):
     index.close()
 
 def get_artists():
+    if not os.path.exists("index.db"):
+        return []
     index = sqlite3.connect("index.db")
     index.row_factory = sqlite3.Row
     index_cur = index.cursor()
@@ -42,6 +45,8 @@ def get_artists():
     return [a["artist"] for a in artists]
 
 def get_albums():
+    if not os.path.exists("index.db"):
+        return []
     index = sqlite3.connect("index.db")
     index.row_factory = sqlite3.Row
     index_cur = index.cursor()
@@ -57,6 +62,8 @@ def get_albums():
     return sorted(albums, key=lambda a: a[1].lower())
 
 def get_artist_albums(artist):
+    if not os.path.exists("index.db"):
+        return []
     index = sqlite3.connect("index.db")
     index.row_factory = sqlite3.Row
     index_cur = index.cursor()
@@ -70,6 +77,8 @@ def get_artist_albums(artist):
     return albums
 
 def get_album_tracks(artist, album):
+    if not os.path.exists("index.db"):
+        return []
     index = sqlite3.connect("index.db")
     index.row_factory = sqlite3.Row
     index_cur = index.cursor()
@@ -88,6 +97,8 @@ def get_album_tracks(artist, album):
     return tracks
 
 def get_track(artist, album):
+    if not os.path.exists("index.db"):
+        return []
     index = sqlite3.connect("index.db")
     index.row_factory = sqlite3.Row
     index_cur = index.cursor()
@@ -106,6 +117,8 @@ def get_track(artist, album):
     return track
 
 def get_all_files():
+    if not os.path.exists("index.db"):
+        return []
     index = sqlite3.connect("index.db")
     index.row_factory = sqlite3.Row
     index_cur = index.cursor()
@@ -114,6 +127,8 @@ def get_all_files():
     return [f["filename"] for f in files]
 
 def get_all_cues():
+    if not os.path.exists("index.db"):
+        return []
     index = sqlite3.connect("index.db")
     index.row_factory = sqlite3.Row
     index_cur = index.cursor()
