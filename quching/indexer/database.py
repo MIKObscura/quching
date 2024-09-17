@@ -1,19 +1,19 @@
 import sqlite3
 import os
 
-def insert_file(filename, artist, album, title, duration, tracknumber):
+def insert_file(filename, artist, album, title, duration, tracknumber, year, genre):
     index = sqlite3.connect("index.db")
     index_cur = index.cursor()
-    index_cur.execute("insert into audio_files (filename, artist, album, title, duration, tracknumber) values (?, ?, ?, ?, ?, ?)",
-        (filename, artist, album, title, duration, tracknumber))
+    index_cur.execute("insert into audio_files (filename, artist, album, title, duration, tracknumber, year, genre) values (?, ?, ?, ?, ?, ?, ?, ?)",
+        (filename, artist, album, title, duration, tracknumber, year, genre))
     index.commit()
     index.close()
 
-def insert_cue(cue, file, artist, album, title, duration, timestamp):
+def insert_cue(cue, file, artist, album, title, duration, timestamp, year, genre):
     index = sqlite3.connect("index.db")
     index_cur = index.cursor()
-    index_cur.execute("insert into cue_sheets (cue, filename, artist, album, title, duration, timestamp) values (?, ?, ?, ?, ?, ?, ?)",
-    (cue, file, artist, album, title, duration, timestamp))
+    index_cur.execute("insert into cue_sheets (cue, filename, artist, album, title, duration, timestamp, year, genre) values (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+    (cue, file, artist, album, title, duration, timestamp, year, genre))
     index.commit()
     index.close()
 

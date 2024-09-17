@@ -65,6 +65,8 @@ def index_files(files):
         artist = ""
         album = ""
         title = ""
+        year = get_year(meta)
+        genre = get_genre(meta)
         duration = fileTags.length
         try:
             artist = " & ".join(meta["ARTIST"])
@@ -85,12 +87,28 @@ def index_files(files):
             tracknumber = get_tracknumber(meta["TRACKNUMBER"][0])
         except (KeyError, IndexError):
             tracknumber = 1
-        db.insert_file(f, artist, album, title, duration, tracknumber)
-    
+        db.insert_file(f, artist, album, title, duration, tracknumber, year, genre)
+
+def get_year(tags):
+    if "DATE" in tags and len(tags["DATE"]) > 0:
+        if "-" in tags["DATE"][0]: # so many different formats!
+            return int(tags["DATE"][0].split("-")[0])
+        if "/" in tags["DATE"][0]:
+            return int(tags["DATE"][0].split(" / ")[0])
+        return int(tags["DATE"][0])
+    if "YEAR" in tags and len(tags["YEAR"]) > 0:
+        return int(tags["YEAR"][0])
+    return None
+
+def get_genre(tags):
+    if "GENRE" in tags and len(tags["GENRE"]) > 0:
+        return tags["GENRE"][0]
+    return None
+
 def index_cues(cues):
     for c in cues:
         for t in c.tracks:
-            db.insert_cue(c.cue_file, t.file, t.artist, c.title, t.title, t.duration, t.timestamp)
+            db.insert_cue(c.cue_file, t.file, t.artist, c.title, t.title, t.duration, t.timestamp, c.year, c.genre)
 
 def refresh_index():
     if "index.db" not in os.listdir("."):

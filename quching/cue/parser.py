@@ -13,7 +13,6 @@ def command(com):
     return __decorator
 
 IGNORED_COMMANDS = [
-    "REM",
     "CATALOG",
     "CDTEXTFILE",
     "FLAGS",
@@ -117,3 +116,10 @@ def parse_title(params, cue):
 @command("TRACK")
 def parse_track(params, cue):
     cue.add_track(int(params[0]))
+
+@command("REM")
+def parse_rem(params, cue):
+    if params[0] == "DATE":
+        cue.set_year(int(params[1]))
+    if params[0] == "GENRE":
+        cue.set_genre(" ".join(params[1:]).replace('"', ""))

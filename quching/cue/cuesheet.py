@@ -18,6 +18,8 @@ class CueSheet:
         self.tracks = []
         self.title = None
         self.artist = None
+        self.genre = None
+        self.year = None
     
     def add_file(self, file):
         self.files.append(file)
@@ -43,3 +45,9 @@ class CueSheet:
     
     def set_title(self, title):
         self.title = title
+    
+    def set_year(self, year):
+        self.year = year
+    
+    def set_genre(self, genre):
+        self.genre = genre

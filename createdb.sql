@@ -4,8 +4,10 @@ CREATE TABLE "audio_files" (
 	"artist"	TEXT,
 	"album"	TEXT,
 	"title"	TEXT,
+	"genre" TEXT,
 	"tracknumber"	INTEGER,
 	"duration" INTEGER,
+	"year" INTEGER,
 	PRIMARY KEY("id" AUTOINCREMENT)
 );
 CREATE TABLE "cue_sheets" (
@@ -14,8 +16,10 @@ CREATE TABLE "cue_sheets" (
 	"filename"	TEXT,
 	"artist"	TEXT,
 	"album"	TEXT,
+	"genre" TEXT,
 	"timestamp"	INTEGER,
 	"title"	INTEGER,
 	"duration"	INTEGER,
+	"year" INTEGER,
 	PRIMARY KEY("id" AUTOINCREMENT)
 );
