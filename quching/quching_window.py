@@ -10,6 +10,7 @@ from PySide6.QtWidgets import (QApplication, QDockWidget, QGridLayout, QHBoxLayo
     QSizePolicy, QSlider, QTabWidget, QToolButton, QListWidget,
     QWidget, QAbstractSlider, QAbstractItemView, QTreeWidget, QTreeWidgetItem, QSizePolicy, QSpacerItem)
 from PySide6.QtMultimedia import QMediaMetaData, QMediaPlayer
+from quching.quching_playlist_composer import QuchingPlaylistComposer
 import quching.utils as utils
 import taglib
 import audio_metadata
@@ -332,6 +333,7 @@ class QuchingWindow(QMainWindow):
         self.ui.shuffle_button.toggled.connect(self.toggle_shuffle)
         self.ui.repeat_button.toggled.connect(self.player.toggle_repeat)
         self.ui.clear_button.clicked.connect(self.clear_queue)
+        self.ui.new_playlist_button.clicked.connect(self.open_playlist_dialog)
         self.setup_artists()
         self.setup_albums()
         self.setup_playlists()
@@ -605,3 +607,7 @@ class QuchingWindow(QMainWindow):
             self.player.queue = playlist_tracks
             self.player.current_track = -1
             self.setup_queue()
+
+    def open_playlist_dialog(self, _):
+        dialog = QuchingPlaylistComposer()
+        dialog.exec()
