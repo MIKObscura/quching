@@ -14,6 +14,7 @@ CREATE TABLE "cue_sheets" (
 	"id"	INTEGER UNIQUE,
 	"cue"	TEXT,
 	"filename"	TEXT,
+	"tracknumber" INTEGER,
 	"artist"	TEXT,
 	"album"	TEXT,
 	"genre" TEXT,

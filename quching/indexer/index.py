@@ -108,7 +108,7 @@ def get_genre(tags):
 def index_cues(cues):
     for c in cues:
         for t in c.tracks:
-            db.insert_cue(c.cue_file, t.file, t.artist, c.title, t.title, t.duration, t.timestamp, c.year, c.genre)
+            db.insert_cue(c.cue_file, t.tracknumber,t.file, t.artist, c.title, t.title, t.duration, t.timestamp, c.year, c.genre)
 
 def refresh_index():
     if "index.db" not in os.listdir("."):

@@ -9,11 +9,11 @@ def insert_file(filename, artist, album, title, duration, tracknumber, year, gen
     index.commit()
     index.close()
 
-def insert_cue(cue, file, artist, album, title, duration, timestamp, year, genre):
+def insert_cue(cue, tracknumber, file, artist, album, title, duration, timestamp, year, genre):
     index = sqlite3.connect("index.db")
     index_cur = index.cursor()
-    index_cur.execute("insert into cue_sheets (cue, filename, artist, album, title, duration, timestamp, year, genre) values (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-    (cue, file, artist, album, title, duration, timestamp, year, genre))
+    index_cur.execute("insert into cue_sheets (cue, tracknumber, filename, artist, album, title, duration, timestamp, year, genre) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+    (cue, tracknumber, file, artist, album, title, duration, timestamp, year, genre))
     index.commit()
     index.close()
 
@@ -135,6 +135,26 @@ def get_all_cues():
     files = index_cur.execute("select distinct cue from cue_sheets").fetchall()
     index.close()
     return [f["cue"] for f in files]
+
+def get_all_tracks():
+    if not os.path.exists("index.db"):
+        return []
+    index = sqlite3.connect("index.db")
+    index.row_factory = sqlite3.Row
+    index_cur = index.cursor()
+    tracks = index_cur.execute("select * from audio_files").fetchall()
+    index.close()
+    return tracks
+
+def get_all_cue_tracks():
+    if not os.path.exists("index.db"):
+        return []
+    index = sqlite3.connect("index.db")
+    index.row_factory = sqlite3.Row
+    index_cur = index.cursor()
+    tracks = index_cur.execute("select * from cue_sheets").fetchall()
+    index.close()
+    return tracks
 
 def create_db():
     index = sqlite3.connect("index.db")
