@@ -203,6 +203,8 @@ class QuchingUI(object):
         self.playlists_list.setProperty("isWrapping", True)
         self.playlists_list.setViewMode(QListView.ViewMode.IconMode)
         self.playlists_list.setIconSize(QSize(100,100))
+        self.playlists_list.setGridSize(QSize(150, 150))
+        self.playlists_list.setResizeMode(QListView.ResizeMode.Adjust)
         self.playlists_list.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
         self.playlists_model = QStandardItemModel()
         self.playlists_list.setModel(self.playlists_model)
