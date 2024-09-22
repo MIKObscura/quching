@@ -9,8 +9,10 @@ from PySide6.QtWidgets import (QAbstractButton, QAbstractItemView, QApplication,
     QDialog, QDialogButtonBox, QGridLayout, QHBoxLayout,
     QHeaderView, QLabel, QLineEdit, QListView,
     QSizePolicy, QTabWidget, QTableWidget, QTableWidgetItem,
-    QToolButton, QVBoxLayout, QWidget, QListWidget)
+    QToolButton, QVBoxLayout, QWidget, QListWidget, QListWidgetItem)
 import quching.indexer.database as db
+from pathlib import Path
+import os
 
 COLUMNS = ["artist", "album", "title", "year", "genre", "duration"]
 
@@ -173,6 +175,8 @@ class QuchingPlaylistComposer(QDialog):
             self.playlist = playlist_file.splitlines()
             self.is_editing = True
         self.ui.playlist_name_box.textEdited.connect(self.toggle_dialog_buttons)
+        self.ui.tracks_table.cellDoubleClicked.connect(self.add_to_playlist)
+        self.ui.end_buttonbox.accepted.connect(self.save_playlist)
         self.setup_table()
     
     def setup_table(self):
@@ -190,13 +194,34 @@ class QuchingPlaylistComposer(QDialog):
                 item = QTableWidgetItem(t[k])
                 if t[k] is not None and not isinstance(t[k], str):
                     item = QTableWidgetItem(str(t[k]))
+                item.setFlags(Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled)
+                item.setWhatsThis(whats_this)
                 column = COLUMNS.index(k)
                 self.ui.tracks_table.setItem(row, column, item)
             row += 1
         self.ui.tracks_table.setSortingEnabled(True)
 
-    def toggle_dialog_buttons(self, _):
-        if len(self.ui.playlist_view.count()) == 0:
+    def toggle_dialog_buttons(self, text):
+        if self.ui.playlist_view.count() == 0 or len(self.ui.playlist_name_box.text()) == 0:
             self.ui.end_buttonbox.setEnabled(False)
         else:
             self.ui.end_buttonbox.setEnabled(True)
+        self.name = text
+    
+    def add_to_playlist(self, row, column):
+        artist = self.ui.tracks_table.item(row, COLUMNS.index("artist"))
+        title = self.ui.tracks_table.item(row, COLUMNS.index("title"))
+        item = QListWidgetItem()
+        item.setText(F"{artist.text()} - {title.text()}")
+        item.setWhatsThis(artist.whatsThis())
+        self.playlist.append(artist.whatsThis())
+        self.ui.playlist_view.insertItem(self.ui.playlist_view.count(), item)
+    
+    def save_playlist(self):
+        playlists_directory = Path(os.path.join(str(Path("~").expanduser()), ".config/quching/playlists"))
+        playlist_path = os.path.join(playlists_directory, F"{self.name}.txt")
+        playlist_content = "\n".join(self.playlist)
+        playlist_file = open(playlist_path, "w")
+        playlist_file.write(playlist_content)
+
+
