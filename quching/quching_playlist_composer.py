@@ -11,6 +11,8 @@ from PySide6.QtWidgets import (QAbstractButton, QAbstractItemView, QApplication,
     QSizePolicy, QTabWidget, QTableWidget, QTableWidgetItem,
     QToolButton, QVBoxLayout, QWidget, QListWidget, QListWidgetItem)
 import quching.indexer.database as db
+from quching.cue import parser
+import taglib
 from pathlib import Path
 import os
 
@@ -167,6 +169,7 @@ class QuchingPlaylistComposer(QDialog):
         self.ui.setupUi(self)
         self.playlist = []
         self.is_editing = False
+        self.index = None
         if name is not None:
             self.name = name
             self.ui.playlist_name_box.setText(name)
@@ -174,6 +177,8 @@ class QuchingPlaylistComposer(QDialog):
             playlist_file = open(playlist, "r").read()
             self.playlist = playlist_file.splitlines()
             self.is_editing = True
+            self.setup_playlist()
+            self.ui.end_buttonbox.setEnabled(True)
         self.ui.playlist_name_box.textEdited.connect(self.toggle_dialog_buttons)
         self.ui.tracks_table.cellDoubleClicked.connect(self.add_to_playlist)
         self.ui.end_buttonbox.accepted.connect(self.save_playlist)
@@ -200,6 +205,21 @@ class QuchingPlaylistComposer(QDialog):
                 self.ui.tracks_table.setItem(row, column, item)
             row += 1
         self.ui.tracks_table.setSortingEnabled(True)
+    
+    def setup_playlist(self):
+        for t in self.playlist:
+            item = QListWidgetItem()
+            item.setWhatsThis(t)
+            if t.startswith("cue://"):
+                cue_file, tracknumber = parser.parse_url(t)
+                cue = parser.parse(cue_file)
+                track = cue.tracks[int(tracknumber) - 1]
+                item.setText(F"{track.artist} - {track.title}")
+            else:
+                tags = taglib.File(t).tags
+                item.setText(F"{" & ".join(tags["ARTIST"])} - {tags["TITLE"][0]}")
+            self.ui.playlist_view.insertItem(self.ui.playlist_view.count(), item)
+
 
     def toggle_dialog_buttons(self, text):
         if self.ui.playlist_view.count() == 0 or len(self.ui.playlist_name_box.text()) == 0:

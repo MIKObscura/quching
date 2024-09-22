@@ -334,6 +334,7 @@ class QuchingWindow(QMainWindow):
         self.ui.repeat_button.toggled.connect(self.player.toggle_repeat)
         self.ui.clear_button.clicked.connect(self.clear_queue)
         self.ui.new_playlist_button.clicked.connect(self.open_playlist_dialog)
+        self.ui.edit_playlist_button.clicked.connect(self.edit_playlist)
         self.setup_artists()
         self.setup_albums()
         self.setup_playlists()
@@ -607,6 +608,13 @@ class QuchingWindow(QMainWindow):
             self.player.queue = playlist_tracks
             self.player.current_track = -1
             self.setup_queue()
+    
+    def edit_playlist(self):
+        selection_model = self.ui.playlists_list.selectionModel()
+        if selection_model.hasSelection():
+            playlist = self.ui.playlists_model.itemFromIndex(selection_model.selectedIndexes()[0])
+            dialog = QuchingPlaylistComposer(playlist=playlist.whatsThis(), name=playlist.text())
+            dialog.exec()
 
     def open_playlist_dialog(self, _):
         dialog = QuchingPlaylistComposer()
