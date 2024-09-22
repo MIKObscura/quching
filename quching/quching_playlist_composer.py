@@ -56,6 +56,9 @@ class QuchingPlaylistComposerUI(object):
         self.first_field_layout = QHBoxLayout(self.first_search)
         self.first_field_layout.setObjectName(u"first_field_layout")
         self.field_choice = QComboBox(self.first_search)
+        self.field_choice.addItem("artist")
+        self.field_choice.addItem("album")
+        self.field_choice.addItem("title")
         self.field_choice.setObjectName(u"field_choice")
 
         self.first_field_layout.addWidget(self.field_choice)
@@ -70,8 +73,7 @@ class QuchingPlaylistComposerUI(object):
         self.browser_layout.addWidget(self.search_fields)
 
         self.tracks_table = QTableWidget(self.browser_tab)
-        if (self.tracks_table.columnCount() < 6):
-            self.tracks_table.setColumnCount(6)
+        self.tracks_table.setColumnCount(6)
         __qtablewidgetitem = QTableWidgetItem()
         self.tracks_table.setHorizontalHeaderItem(0, __qtablewidgetitem)
         __qtablewidgetitem1 = QTableWidgetItem()
@@ -95,7 +97,7 @@ class QuchingPlaylistComposerUI(object):
         self.tracks_table.setColumnCount(6)
         self.tracks_table.horizontalHeader().setCascadingSectionResizes(True)
         self.tracks_table.horizontalHeader().setProperty("showSortIndicator", True)
-        #self.tracks_table.horizontalHeader().setStretchLastSection(True)
+        self.tracks_table.horizontalHeader().setStretchLastSection(True)
         self.tracks_table.verticalHeader().setVisible(False)
 
         self.browser_layout.addWidget(self.tracks_table)
@@ -169,7 +171,12 @@ class QuchingPlaylistComposer(QDialog):
         self.ui.setupUi(self)
         self.playlist = []
         self.is_editing = False
-        self.index = None
+        self.current_index = None
+        self.indexes = {
+            "artist": None,
+            "album": None,
+            "title": None
+        }
         if name is not None:
             self.name = name
             self.ui.playlist_name_box.setText(name)
@@ -182,6 +189,8 @@ class QuchingPlaylistComposer(QDialog):
         self.ui.playlist_name_box.textEdited.connect(self.toggle_dialog_buttons)
         self.ui.tracks_table.cellDoubleClicked.connect(self.add_to_playlist)
         self.ui.end_buttonbox.accepted.connect(self.save_playlist)
+        self.ui.field_choice.currentTextChanged.connect(self.change_index)
+        self.ui.search_action.triggered.connect(self.search)
         self.setup_table()
     
     def setup_table(self):
@@ -205,6 +214,11 @@ class QuchingPlaylistComposer(QDialog):
                 self.ui.tracks_table.setItem(row, column, item)
             row += 1
         self.ui.tracks_table.setSortingEnabled(True)
+        first_artist, first_album, first_title = self.ui.tracks_table.item(0, 0), self.ui.tracks_table.item(0, 1), self.ui.tracks_table.item(0, 2)
+        self.indexes["artist"] = self.ui.tracks_table.indexFromItem(first_artist)
+        self.indexes["album"] = self.ui.tracks_table.indexFromItem(first_album)
+        self.indexes["title"] = self.ui.tracks_table.indexFromItem(first_title)
+        self.current_index = self.indexes["artist"]
     
     def setup_playlist(self):
         for t in self.playlist:
@@ -244,4 +258,16 @@ class QuchingPlaylistComposer(QDialog):
         playlist_file = open(playlist_path, "w")
         playlist_file.write(playlist_content)
 
-
+    def change_index(self, text):
+        self.current_index = self.indexes[text]
+    
+    def search(self):
+        start_item = self.ui.tracks_table.item(self.current_index.row() + 1, self.current_index.column())
+        start_index = self.ui.tracks_table.indexFromItem(start_item)
+        matches = self.ui.tracks_table.model().match(start_index, Qt.ItemDataRole.DisplayRole, self.ui.search_term.text())
+        if len(matches) == 0:
+            return
+        index_matched = matches[0]
+        self.current_index = index_matched
+        self.indexes[self.ui.field_choice.currentText()] = index_matched
+        self.ui.tracks_table.setCurrentIndex(index_matched)
