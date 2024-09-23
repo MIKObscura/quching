@@ -18,5 +18,6 @@ python main.py path/to/audio/file
 Note: the initial indexing may take some time if you have a lot of files, you'll also need to re-launch the application once it's done
 
 # Credits
-Cat image used as default cover is from here: https://www.svgrepo.com/svg/452952/cat
-Default artist picture: https://www.svgrepo.com/svg/512729/profile-round-1342
+Cat image used as default cover is from here: https://www.svgrepo.com/svg/452952/cat  
+Default artist picture: https://www.svgrepo.com/svg/512729/profile-round-1342  
+Default playlist cover: https://www.svgrepo.com/svg/533068/disc-alt
