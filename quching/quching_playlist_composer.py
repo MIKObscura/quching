@@ -109,6 +109,8 @@ class QuchingPlaylistComposerUI(object):
         self.playlist_view_layout.setObjectName(u"playlist_view_layout")
         self.playlist_view = QListWidget(self.playlist_tab)
         self.playlist_view.setObjectName(u"playlist_view")
+        self.playlist_view.setMovement(QListView.Movement.Snap)
+        self.playlist_view.setDragDropMode(QAbstractItemView.DragDropMode.InternalMove)
 
         self.playlist_view_layout.addWidget(self.playlist_view, 0, 0, 1, 1)
 
@@ -171,6 +173,7 @@ class QuchingPlaylistComposer(QDialog):
         self.ui.setupUi(self)
         self.playlist = []
         self.is_editing = False
+        self.ui_setup = False
         self.current_index = None
         self.indexes = {
             "artist": None,
@@ -191,6 +194,7 @@ class QuchingPlaylistComposer(QDialog):
         self.ui.end_buttonbox.accepted.connect(self.save_playlist)
         self.ui.field_choice.currentTextChanged.connect(self.change_index)
         self.ui.search_action.triggered.connect(self.search)
+        self.ui.playlist_view.model().rowsMoved.connect(self.reorder_playlist)
         self.setup_table()
     
     def setup_table(self):
@@ -221,6 +225,7 @@ class QuchingPlaylistComposer(QDialog):
         self.current_index = self.indexes["artist"]
     
     def setup_playlist(self):
+        self.ui_setup = True
         for t in self.playlist:
             item = QListWidgetItem()
             item.setWhatsThis(t)
@@ -233,7 +238,7 @@ class QuchingPlaylistComposer(QDialog):
                 tags = taglib.File(t).tags
                 item.setText(F"{" & ".join(tags["ARTIST"])} - {tags["TITLE"][0]}")
             self.ui.playlist_view.insertItem(self.ui.playlist_view.count(), item)
-
+        self.ui_setup = False
 
     def toggle_dialog_buttons(self, text):
         if self.ui.playlist_view.count() == 0 or len(self.ui.playlist_name_box.text()) == 0:
@@ -271,3 +276,11 @@ class QuchingPlaylistComposer(QDialog):
         self.current_index = index_matched
         self.indexes[self.ui.field_choice.currentText()] = index_matched
         self.ui.tracks_table.setCurrentIndex(index_matched)
+
+    def reorder_playlist(self, *args):
+        if self.ui_setup:
+            return
+        new_playlist = []
+        for i in range(self.ui.playlist_view.count()):
+            new_playlist.append(self.ui.playlist_view.item(i).whatsThis())
+        self.playlist = new_playlist
