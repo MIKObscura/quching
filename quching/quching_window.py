@@ -73,7 +73,7 @@ class QuchingUI(object):
         self.queue_view.setModel(self.queue_model)
         self.queue_view.setMovement(QListView.Movement.Snap)
         #self.queue_view.setDefaultDropAction(Qt.DropAction.MoveAction)
-        self.queue_view.setDragDropMode(QAbstractItemView.InternalMove)
+        self.queue_view.setDragDropMode(QAbstractItemView.DragDropMode.InternalMove)
         self.queue_layout.addWidget(self.queue_view)
 
         self.browser_tabs = QTabWidget(self.central_widget)
