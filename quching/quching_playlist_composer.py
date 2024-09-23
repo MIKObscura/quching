@@ -6,10 +6,10 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QAbstractButton, QAbstractItemView, QApplication, QComboBox,
-    QDialog, QDialogButtonBox, QGridLayout, QHBoxLayout,
-    QHeaderView, QLabel, QLineEdit, QListView,
-    QSizePolicy, QTabWidget, QTableWidget, QTableWidgetItem,
-    QToolButton, QVBoxLayout, QWidget, QListWidget, QListWidgetItem)
+                               QDialog, QDialogButtonBox, QGridLayout, QHBoxLayout,
+                               QHeaderView, QLabel, QLineEdit, QListView,
+                               QSizePolicy, QTabWidget, QTableWidget, QTableWidgetItem,
+                               QToolButton, QVBoxLayout, QWidget, QListWidget, QListWidgetItem, QMenu)
 import quching.indexer.database as db
 from quching.cue import parser
 import taglib
@@ -111,6 +111,9 @@ class QuchingPlaylistComposerUI(object):
         self.playlist_view.setObjectName(u"playlist_view")
         self.playlist_view.setMovement(QListView.Movement.Snap)
         self.playlist_view.setDragDropMode(QAbstractItemView.DragDropMode.InternalMove)
+        self.playlist_view.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+        self.playlist_context_menu = QMenu()
+        self.remove_action = self.playlist_context_menu.addAction("Remove from playlist")
 
         self.playlist_view_layout.addWidget(self.playlist_view, 0, 0, 1, 1)
 
@@ -195,6 +198,8 @@ class QuchingPlaylistComposer(QDialog):
         self.ui.field_choice.currentTextChanged.connect(self.change_index)
         self.ui.search_action.triggered.connect(self.search)
         self.ui.playlist_view.model().rowsMoved.connect(self.reorder_playlist)
+        self.ui.playlist_view.customContextMenuRequested.connect(self.show_context_menu)
+        self.ui.remove_action.triggered.connect(self.remove_from_playlist)
         self.setup_table()
     
     def setup_table(self):
@@ -284,3 +289,12 @@ class QuchingPlaylistComposer(QDialog):
         for i in range(self.ui.playlist_view.count()):
             new_playlist.append(self.ui.playlist_view.item(i).whatsThis())
         self.playlist = new_playlist
+
+    def show_context_menu(self, point):
+        self.ui.playlist_context_menu.exec(self.ui.playlist_view.mapToGlobal(point))
+
+    def remove_from_playlist(self):
+        row = self.ui.playlist_view.currentRow()
+        self.playlist.pop(row)
+        self.ui.playlist_view.clear()
+        self.setup_playlist()
