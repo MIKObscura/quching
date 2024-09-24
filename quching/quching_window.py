@@ -16,6 +16,7 @@ import taglib
 import audio_metadata
 import quching.indexer.database as db
 import os
+import glob
 from pathlib import Path
 from quching.cue import parser
 
@@ -428,6 +429,7 @@ class QuchingWindow(QMainWindow):
         self.player.current_track = new_current
     
     def setup_artists(self):
+        self.ui.artists_model.clear()
         artists = db.get_artists()
         for a in artists:
             item = QStandardItem(a)
@@ -436,6 +438,7 @@ class QuchingWindow(QMainWindow):
             self.ui.artists_model.appendRow(item)
 
     def setup_albums(self):
+        self.ui.albums_model.clear()
         albums = db.get_albums()
         for a in albums:
             icon = QIcon("cat.png")
@@ -452,7 +455,7 @@ class QuchingWindow(QMainWindow):
     
     def setup_playlists(self):
         playlists_dir = Path(os.path.join(str(Path("~").expanduser()), ".config/quching/playlists"))
-        playlists = os.listdir(playlists_dir)
+        playlists = glob.glob(F"{playlists_dir}/*.txt")
         for playlist in playlists:
             item = QStandardItem(QIcon("playlist.png"), Path(os.path.join(playlists_dir, playlist)).stem)
             item.setWhatsThis(str(os.path.join(playlists_dir, playlist)))
@@ -569,6 +572,10 @@ class QuchingWindow(QMainWindow):
         self.ui.playlists_list.show()
     
     def add_to_queue(self, item, column):
+        if not self.player.queue:
+            was_empty = True
+        else:
+            was_empty = False
         if item.childCount() != 0:
             for i in range(item.childCount()):
                 self.add_to_queue(item.child(i), column)
@@ -587,6 +594,10 @@ class QuchingWindow(QMainWindow):
             item = QStandardItem(F"{" & ".join(tags["ARTIST"])} - {tags["TITLE"][0]}")
             item.setWhatsThis(file)
             self.ui.queue_model.appendRow(item)
+        if was_empty:
+            self.player.player.setSource(file)
+            self.ui.play_button.setIcon(QIcon.fromTheme(QIcon.ThemeIcon.MediaPlaybackStart))
+            self.toggle_play()
     
     def toggle_shuffle(self, _):
         self.queue_setup = True

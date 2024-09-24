@@ -17,7 +17,8 @@ class QuchingPlayer(QObject):
         self.repeat = False
         self.output.setVolume(volume)
         self.player.setAudioOutput(self.output)
-        self.player.setSource(QUrl.fromLocalFile(self.queue[0]))
+        if self.queue:
+            self.player.setSource(QUrl.fromLocalFile(self.queue[0]))
     
     def get_metadata(self):
         return self.player.metaData()
