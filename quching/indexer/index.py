@@ -1,4 +1,5 @@
 import glob
+import re
 from pathlib import Path
 import sqlite3
 import os
@@ -91,11 +92,10 @@ def index_files(files):
 
 def get_year(tags):
     if "DATE" in tags and len(tags["DATE"]) > 0:
-        if "-" in tags["DATE"][0]: # so many different formats!
-            return int(tags["DATE"][0].split("-")[0])
-        if "/" in tags["DATE"][0]:
-            return int(tags["DATE"][0].split(" / ")[0])
-        return int(tags["DATE"][0])
+        try:
+            return int(re.findall(r"([0-9]{4})", tags["DATE"][0])[0])
+        except IndexError:
+            return None
     if "YEAR" in tags and len(tags["YEAR"]) > 0:
         return int(tags["YEAR"][0])
     return None
