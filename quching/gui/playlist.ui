@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>playlist_dialog</class>
+ <widget class="QDialog" name="playlist_dialog">
+  <property name="enabled">
+   <bool>true</bool>
+  </property>
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>640</width>
+    <height>480</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Dialog</string>
+  </property>
+  <layout class="QVBoxLayout" name="dialog_layout">
+   <item>
+    <widget class="QLineEdit" name="playlist_name_box">
+     <property name="inputMask">
+      <string/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="placeholderText">
+      <string>playlist name</string>
+     </property>
+     <property name="clearButtonEnabled">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QWidget" name="main_widget" native="true">
+     <layout class="QVBoxLayout" name="main_layout">
+      <item>
+       <widget class="QTabWidget" name="playlist_composer_tabs">
+        <property name="currentIndex">
+         <number>0</number>
+        </property>
+        <widget class="QWidget" name="browser_tab">
+         <attribute name="title">
+          <string>Browse Tracks</string>
+         </attribute>
+         <layout class="QVBoxLayout" name="browser_layout">
+          <item>
+           <widget class="QLabel" name="search_label">
+            <property name="text">
+             <string>Search Tracks</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QWidget" name="search_fields" native="true">
+            <layout class="QVBoxLayout" name="search_fields_layout">
+             <item>
+              <widget class="QWidget" name="first_search" native="true">
+               <layout class="QHBoxLayout" name="first_field_layout">
+                <item>
+                 <widget class="QComboBox" name="field_choice">
+                  <property name="placeholderText">
+                   <string>field</string>
+                  </property>
+                  <item>
+                   <property name="text">
+                    <string>artist</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>album</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>title</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>year</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>genre</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>bitrate</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>samplerate</string>
+                   </property>
+                  </item>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLineEdit" name="search_term"/>
+                </item>
+               </layout>
+              </widget>
+             </item>
+             <item>
+              <widget class="QWidget" name="additional_search" native="true">
+               <layout class="QHBoxLayout" name="additional_field_1_layout"/>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item>
+           <widget class="QTableWidget" name="tracks_table">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+            <property name="showDropIndicator" stdset="0">
+             <bool>false</bool>
+            </property>
+            <property name="dragDropOverwriteMode">
+             <bool>false</bool>
+            </property>
+            <property name="selectionMode">
+             <enum>QAbstractItemView::SelectionMode::SingleSelection</enum>
+            </property>
+            <property name="selectionBehavior">
+             <enum>QAbstractItemView::SelectionBehavior::SelectRows</enum>
+            </property>
+            <property name="sortingEnabled">
+             <bool>true</bool>
+            </property>
+            <property name="rowCount">
+             <number>0</number>
+            </property>
+            <property name="columnCount">
+             <number>5</number>
+            </property>
+            <attribute name="horizontalHeaderCascadingSectionResizes">
+             <bool>true</bool>
+            </attribute>
+            <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
+             <bool>true</bool>
+            </attribute>
+            <attribute name="horizontalHeaderStretchLastSection">
+             <bool>true</bool>
+            </attribute>
+            <attribute name="verticalHeaderVisible">
+             <bool>false</bool>
+            </attribute>
+            <column>
+             <property name="text">
+              <string>Artist</string>
+             </property>
+            </column>
+            <column>
+             <property name="text">
+              <string>Album</string>
+             </property>
+            </column>
+            <column>
+             <property name="text">
+              <string>Title</string>
+             </property>
+            </column>
+            <column>
+             <property name="text">
+              <string>Year</string>
+             </property>
+            </column>
+            <column>
+             <property name="text">
+              <string>Genre</string>
+             </property>
+            </column>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+        <widget class="QWidget" name="playlist_tab">
+         <attribute name="title">
+          <string>Playlist</string>
+         </attribute>
+         <layout class="QGridLayout" name="playlist_view_layout">
+          <item row="0" column="0">
+           <widget class="QListWidget" name="playlist_view">
+            <property name="dragDropMode">
+             <enum>QAbstractItemView::DragDropMode::InternalMove</enum>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QDialogButtonBox" name="end_buttonbox">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Orientation::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::StandardButton::Cancel|QDialogButtonBox::StandardButton::Ok</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>end_buttonbox</sender>
+   <signal>accepted()</signal>
+   <receiver>playlist_dialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>248</x>
+     <y>254</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>157</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>end_buttonbox</sender>
+   <signal>rejected()</signal>
+   <receiver>playlist_dialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>316</x>
+     <y>260</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>286</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>
