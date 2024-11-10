@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'quchingwTlUeW.ui'
+## Form generated from reading UI file 'quchingcwRucq.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.7.2
 ##
@@ -99,6 +99,7 @@ class Ui_Quching(object):
         self.artists_page_layout.setObjectName(u"artists_page_layout")
         self.artists_list = QListView(self.artists_page)
         self.artists_list.setObjectName(u"artists_list")
+        self.artists_list.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
         self.artists_list.setIconSize(QSize(150, 150))
         self.artists_list.setGridSize(QSize(150, 150))
         self.artists_list.setViewMode(QListView.ViewMode.IconMode)
@@ -147,6 +148,7 @@ class Ui_Quching(object):
         self.albums_list_layout.setObjectName(u"albums_list_layout")
         self.albums_list = QListView(self.albums_list_page)
         self.albums_list.setObjectName(u"albums_list")
+        self.albums_list.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
         self.albums_list.setIconSize(QSize(150, 150))
         self.albums_list.setGridSize(QSize(200, 200))
         self.albums_list.setViewMode(QListView.ViewMode.IconMode)
@@ -243,7 +245,9 @@ class Ui_Quching(object):
         self.playlists_page_layout.setObjectName(u"playlists_page_layout")
         self.playlists_list = QListView(self.playlists_page)
         self.playlists_list.setObjectName(u"playlists_list")
+        self.playlists_list.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
         self.playlists_list.setIconSize(QSize(100, 100))
+        self.playlists_list.setMovement(QListView.Movement.Static)
         self.playlists_list.setGridSize(QSize(150, 150))
         self.playlists_list.setViewMode(QListView.ViewMode.IconMode)
 
@@ -392,7 +396,7 @@ class Ui_Quching(object):
 
         self.retranslateUi(Quching)
 
-        self.browser_tabs.setCurrentIndex(2)
+        self.browser_tabs.setCurrentIndex(0)
         self.artists_stacked_widget.setCurrentIndex(0)
         self.album_stacked_widgets.setCurrentIndex(0)
         self.playlists_tab_widget.setCurrentIndex(0)
