@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'dyn_playlistuNAucE.ui'
+## Form generated from reading UI file 'dyn_playlistTrayaI.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.7.2
 ##
@@ -20,19 +20,19 @@ from PySide6.QtWidgets import (QAbstractButton, QApplication, QComboBox, QDialog
     QSizePolicy, QSpacerItem, QTableWidget, QTableWidgetItem,
     QToolButton, QVBoxLayout, QWidget)
 
-class Ui_Dialog(object):
-    def setupUi(self, Dialog):
-        if not Dialog.objectName():
-            Dialog.setObjectName(u"Dialog")
-        Dialog.resize(640, 480)
-        self.verticalLayout = QVBoxLayout(Dialog)
+class Ui_dynamic_playlist(object):
+    def setupUi(self, dynamic_playlist):
+        if not dynamic_playlist.objectName():
+            dynamic_playlist.setObjectName(u"dynamic_playlist")
+        dynamic_playlist.resize(640, 480)
+        self.verticalLayout = QVBoxLayout(dynamic_playlist)
         self.verticalLayout.setObjectName(u"verticalLayout")
-        self.playlist_name_box = QLineEdit(Dialog)
+        self.playlist_name_box = QLineEdit(dynamic_playlist)
         self.playlist_name_box.setObjectName(u"playlist_name_box")
 
         self.verticalLayout.addWidget(self.playlist_name_box)
 
-        self.buttons_widget = QWidget(Dialog)
+        self.buttons_widget = QWidget(dynamic_playlist)
         self.buttons_widget.setObjectName(u"buttons_widget")
         self.horizontalLayout = QHBoxLayout(self.buttons_widget)
         self.horizontalLayout.setObjectName(u"horizontalLayout")
@@ -47,35 +47,41 @@ class Ui_Dialog(object):
 
         self.horizontalLayout.addWidget(self.add_field_button)
 
-        self.remove_field_button = QToolButton(self.buttons_widget)
-        self.remove_field_button.setObjectName(u"remove_field_button")
-        icon1 = QIcon(QIcon.fromTheme(QIcon.ThemeIcon.ListRemove))
-        self.remove_field_button.setIcon(icon1)
-
-        self.horizontalLayout.addWidget(self.remove_field_button)
-
         self.clear_fields_button = QToolButton(self.buttons_widget)
         self.clear_fields_button.setObjectName(u"clear_fields_button")
-        icon2 = QIcon(QIcon.fromTheme(QIcon.ThemeIcon.WindowClose))
-        self.clear_fields_button.setIcon(icon2)
+        icon1 = QIcon(QIcon.fromTheme(QIcon.ThemeIcon.WindowClose))
+        self.clear_fields_button.setIcon(icon1)
 
         self.horizontalLayout.addWidget(self.clear_fields_button)
 
 
         self.verticalLayout.addWidget(self.buttons_widget)
 
-        self.fields_widget = QWidget(Dialog)
+        self.fields_widget = QWidget(dynamic_playlist)
         self.fields_widget.setObjectName(u"fields_widget")
-        self.verticalLayout_2 = QVBoxLayout(self.fields_widget)
-        self.verticalLayout_2.setObjectName(u"verticalLayout_2")
+        self.fields_layout = QVBoxLayout(self.fields_widget)
+        self.fields_layout.setObjectName(u"fields_layout")
         self.first_field = QWidget(self.fields_widget)
         self.first_field.setObjectName(u"first_field")
         self.horizontalLayout_2 = QHBoxLayout(self.first_field)
         self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
         self.field_choice = QComboBox(self.first_field)
+        self.field_choice.addItem("")
+        self.field_choice.addItem("")
+        self.field_choice.addItem("")
+        self.field_choice.addItem("")
+        self.field_choice.addItem("")
+        self.field_choice.addItem("")
         self.field_choice.setObjectName(u"field_choice")
 
         self.horizontalLayout_2.addWidget(self.field_choice)
+
+        self.equals_choice = QComboBox(self.first_field)
+        self.equals_choice.addItem("")
+        self.equals_choice.addItem("")
+        self.equals_choice.setObjectName(u"equals_choice")
+
+        self.horizontalLayout_2.addWidget(self.equals_choice)
 
         self.field_value = QLineEdit(self.first_field)
         self.field_value.setObjectName(u"field_value")
@@ -83,12 +89,12 @@ class Ui_Dialog(object):
         self.horizontalLayout_2.addWidget(self.field_value)
 
 
-        self.verticalLayout_2.addWidget(self.first_field)
+        self.fields_layout.addWidget(self.first_field)
 
 
         self.verticalLayout.addWidget(self.fields_widget)
 
-        self.widget = QWidget(Dialog)
+        self.widget = QWidget(dynamic_playlist)
         self.widget.setObjectName(u"widget")
         self.horizontalLayout_3 = QHBoxLayout(self.widget)
         self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
@@ -104,7 +110,7 @@ class Ui_Dialog(object):
 
         self.verticalLayout.addWidget(self.widget)
 
-        self.preview_table = QTableWidget(Dialog)
+        self.preview_table = QTableWidget(dynamic_playlist)
         if (self.preview_table.columnCount() < 6):
             self.preview_table.setColumnCount(6)
         __qtablewidgetitem = QTableWidgetItem()
@@ -123,7 +129,7 @@ class Ui_Dialog(object):
 
         self.verticalLayout.addWidget(self.preview_table)
 
-        self.end_button_box = QDialogButtonBox(Dialog)
+        self.end_button_box = QDialogButtonBox(dynamic_playlist)
         self.end_button_box.setObjectName(u"end_button_box")
         self.end_button_box.setOrientation(Qt.Orientation.Horizontal)
         self.end_button_box.setStandardButtons(QDialogButtonBox.StandardButton.Cancel|QDialogButtonBox.StandardButton.Ok)
@@ -131,31 +137,40 @@ class Ui_Dialog(object):
         self.verticalLayout.addWidget(self.end_button_box)
 
 
-        self.retranslateUi(Dialog)
-        self.end_button_box.accepted.connect(Dialog.accept)
-        self.end_button_box.rejected.connect(Dialog.reject)
+        self.retranslateUi(dynamic_playlist)
+        self.end_button_box.accepted.connect(dynamic_playlist.accept)
+        self.end_button_box.rejected.connect(dynamic_playlist.reject)
 
-        QMetaObject.connectSlotsByName(Dialog)
+        QMetaObject.connectSlotsByName(dynamic_playlist)
     # setupUi
 
-    def retranslateUi(self, Dialog):
-        Dialog.setWindowTitle(QCoreApplication.translate("Dialog", u"Dialog", None))
-        self.playlist_name_box.setPlaceholderText(QCoreApplication.translate("Dialog", u"playlist name", None))
-        self.add_field_button.setText(QCoreApplication.translate("Dialog", u"...", None))
-        self.remove_field_button.setText(QCoreApplication.translate("Dialog", u"...", None))
-        self.clear_fields_button.setText(QCoreApplication.translate("Dialog", u"...", None))
-        self.preview_button.setText(QCoreApplication.translate("Dialog", u"Preview", None))
+    def retranslateUi(self, dynamic_playlist):
+        dynamic_playlist.setWindowTitle(QCoreApplication.translate("dynamic_playlist", u"Dialog", None))
+        self.playlist_name_box.setPlaceholderText(QCoreApplication.translate("dynamic_playlist", u"playlist name", None))
+        self.add_field_button.setText(QCoreApplication.translate("dynamic_playlist", u"...", None))
+        self.clear_fields_button.setText(QCoreApplication.translate("dynamic_playlist", u"...", None))
+        self.field_choice.setItemText(0, QCoreApplication.translate("dynamic_playlist", u"artist", None))
+        self.field_choice.setItemText(1, QCoreApplication.translate("dynamic_playlist", u"album", None))
+        self.field_choice.setItemText(2, QCoreApplication.translate("dynamic_playlist", u"year", None))
+        self.field_choice.setItemText(3, QCoreApplication.translate("dynamic_playlist", u"genre", None))
+        self.field_choice.setItemText(4, QCoreApplication.translate("dynamic_playlist", u"title", None))
+        self.field_choice.setItemText(5, QCoreApplication.translate("dynamic_playlist", u"duration", None))
+
+        self.equals_choice.setItemText(0, QCoreApplication.translate("dynamic_playlist", u"=", None))
+        self.equals_choice.setItemText(1, QCoreApplication.translate("dynamic_playlist", u"!=", None))
+
+        self.preview_button.setText(QCoreApplication.translate("dynamic_playlist", u"Preview", None))
         ___qtablewidgetitem = self.preview_table.horizontalHeaderItem(0)
-        ___qtablewidgetitem.setText(QCoreApplication.translate("Dialog", u"Artist", None));
+        ___qtablewidgetitem.setText(QCoreApplication.translate("dynamic_playlist", u"Artist", None));
         ___qtablewidgetitem1 = self.preview_table.horizontalHeaderItem(1)
-        ___qtablewidgetitem1.setText(QCoreApplication.translate("Dialog", u"Album", None));
+        ___qtablewidgetitem1.setText(QCoreApplication.translate("dynamic_playlist", u"Album", None));
         ___qtablewidgetitem2 = self.preview_table.horizontalHeaderItem(2)
-        ___qtablewidgetitem2.setText(QCoreApplication.translate("Dialog", u"Title", None));
+        ___qtablewidgetitem2.setText(QCoreApplication.translate("dynamic_playlist", u"Title", None));
         ___qtablewidgetitem3 = self.preview_table.horizontalHeaderItem(3)
-        ___qtablewidgetitem3.setText(QCoreApplication.translate("Dialog", u"Year", None));
+        ___qtablewidgetitem3.setText(QCoreApplication.translate("dynamic_playlist", u"Year", None));
         ___qtablewidgetitem4 = self.preview_table.horizontalHeaderItem(4)
-        ___qtablewidgetitem4.setText(QCoreApplication.translate("Dialog", u"Genre", None));
+        ___qtablewidgetitem4.setText(QCoreApplication.translate("dynamic_playlist", u"Genre", None));
         ___qtablewidgetitem5 = self.preview_table.horizontalHeaderItem(5)
-        ___qtablewidgetitem5.setText(QCoreApplication.translate("Dialog", u"Duration", None));
+        ___qtablewidgetitem5.setText(QCoreApplication.translate("dynamic_playlist", u"Duration", None));
     # retranslateUi
 

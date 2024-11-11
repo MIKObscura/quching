@@ -162,3 +162,30 @@ def create_db():
     index_cur.executescript(open("createdb.sql").read())
     index.commit()
     index.close()
+
+def search_db(selectors, limit=None):
+    search_string = ""
+    placeholders = []
+    for s in selectors:
+        if type(s) in (list, tuple):
+            if "%" in s[2] or "_" in s[2]:
+                search_string += F"{s[0]} LIKE ?"
+            else:
+                search_string += F"{s[0]}{s[1]}?"
+            placeholders.append(s[2])
+        else:
+            search_string += F" {s} "
+    index = sqlite3.connect("index.db")
+    index.row_factory = sqlite3.Row
+    index_cur = index.cursor()
+    query = index_cur.execute(F"select * from audio_files where {search_string} collate NOCASE", placeholders)
+    if limit is not None:
+        query = query.fetchmany(limit)
+    else:
+        query = query.fetchall()
+    query_cue = index_cur.execute(F"select * from cue_sheets where {search_string} collate NOCASE", placeholders)
+    if limit is not None:
+        res = (query + query_cue.fetchmany(limit))[:limit]
+        return res
+    else:
+        return query + query_cue.fetchall()

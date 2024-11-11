@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'quchingcwRucq.ui'
+## Form generated from reading UI file 'quchingViUMQt.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.7.2
 ##
@@ -260,7 +260,7 @@ class Ui_Quching(object):
         self.dynamic_playlists_layout.setObjectName(u"dynamic_playlists_layout")
         self.dynamic_playlists_list = QListView(self.dynamic_playlists_page)
         self.dynamic_playlists_list.setObjectName(u"dynamic_playlists_list")
-        self.dynamic_playlists_list.setIconSize(QSize(150, 150))
+        self.dynamic_playlists_list.setIconSize(QSize(100, 100))
         self.dynamic_playlists_list.setGridSize(QSize(150, 150))
         self.dynamic_playlists_list.setViewMode(QListView.ViewMode.IconMode)
 

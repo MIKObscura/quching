@@ -1,15 +1,6 @@
-from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
-    QMetaObject, QObject, QPoint, QRect,
-    QSize, QTime, QUrl, Qt, QSize, QByteArray)
-from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
-    QFont, QFontDatabase, QGradient, QIcon,
-    QImage, QKeySequence, QLinearGradient, QPainter,
-    QPalette, QPixmap, QRadialGradient, QTransform, QStandardItemModel, QStandardItem, QShortcut, QKeySequence)
-from PySide6.QtWidgets import (QApplication, QDockWidget, QGridLayout, QHBoxLayout, QVBoxLayout,
-                               QLabel, QListView, QMainWindow, QMenuBar,
-                               QSizePolicy, QSlider, QTabWidget, QToolButton, QListWidget,
-                               QWidget, QAbstractSlider, QAbstractItemView, QTreeWidget, QTreeWidgetItem, QSizePolicy,
-                               QSpacerItem, QStackedWidget, QComboBox)
+from PySide6.QtCore import (Qt, QSize, QByteArray)
+from PySide6.QtGui import (QIcon, QImage, QPixmap, QStandardItemModel, QStandardItem, QShortcut, QKeySequence)
+from PySide6.QtWidgets import (QMainWindow, QTreeWidgetItem)
 from PySide6.QtMultimedia import QMediaMetaData, QMediaPlayer
 from quching.quching_playlist_composer import QuchingPlaylistComposer
 from quching.quching_dynamic_playlist_wizard import QuchingDynamicPlaylistWizard
@@ -21,6 +12,7 @@ import os
 import glob
 from pathlib import Path
 from quching.cue import parser
+import json
 from quching.gui.quching_ui import Ui_Quching
 
 class QuchingWindow(QMainWindow):
@@ -46,6 +38,7 @@ class QuchingWindow(QMainWindow):
         self.ui.artists_list.doubleClicked.connect(self.display_artist)
         self.ui.albums_list.doubleClicked.connect(self.display_album)
         self.ui.playlists_list.doubleClicked.connect(self.display_playlist)
+        self.ui.dynamic_playlists_list.doubleClicked.connect(self.display_dynamic_playlist)
         self.ui.back_button3.clicked.connect(self.back_to_artists)
         self.ui.back_button2.clicked.connect(self.back_to_albums)
         self.ui.back_button.clicked.connect(self.back_to_playlists)
@@ -62,6 +55,7 @@ class QuchingWindow(QMainWindow):
         self.setup_artists()
         self.setup_albums()
         self.setup_playlists()
+        self.setup_dynamic_playlists()
         self.setup_shortcuts()
         self.toggle_play()
 
@@ -203,6 +197,15 @@ class QuchingWindow(QMainWindow):
             item.setWhatsThis(str(os.path.join(playlists_dir, playlist)))
             item.setFlags(Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled)
             self.ui.playlists_model.appendRow(item)
+
+    def setup_dynamic_playlists(self):
+        playlists_dir = Path(os.path.join(str(Path("~").expanduser()), ".config/quching/dynamic_playlists"))
+        playlists = glob.glob(F"{playlists_dir}/*.json")
+        for playlist in playlists:
+            item = QStandardItem(QIcon("playlist.png"), Path(os.path.join(playlists_dir, playlist)).stem)
+            item.setWhatsThis(str(os.path.join(playlists_dir, playlist)))
+            item.setFlags(Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled)
+            self.ui.dynamic_playlists_model.appendRow(item)
     
     def setup_shortcuts(self):
         self.space = QShortcut(QKeySequence(Qt.Key.Key_Space), self)
@@ -298,6 +301,45 @@ class QuchingWindow(QMainWindow):
             track.setWhatsThis(0, line)
             track.setIcon(0, icon)
 
+    def display_dynamic_playlist(self, index):
+        self.ui.playlists_tab_widget.setCurrentIndex(1)
+        self.ui.playlist_tracks.clear()
+        item = self.ui.dynamic_playlists_model.itemFromIndex(index)
+        playlist_search = json.loads(open(item.whatsThis(), "r").read())
+        playlist = db.search_db(playlist_search)
+        for idx, line in enumerate(playlist):
+            track = None
+            icon = QIcon("cat.png")
+            if "cue" in line.keys():
+                track = QTreeWidgetItem(self.ui.playlist_tracks,
+                                        ["", F"{idx + 1}. {line["artist"]} - {line["title"]}",
+                                         utils.ms_to_str(int(line["duration"] * 1000))])
+                track.setWhatsThis(0, F"cue://{line["cue"]}/{line["tracknumber"]}")
+                try:
+                    cover = QByteArray(
+                        audio_metadata.load(os.path.join(os.path.dirname(line["cue_file"]), line["file"]))[
+                            "pictures"][0].data)
+                    pixmap = QPixmap()
+                    pixmap.loadFromData(cover)
+                    icon = QIcon(pixmap)
+                except Exception:
+                    icon = QIcon("cat.png")
+            else:
+                track_meta = taglib.File(line)
+                track_tags = track_meta.tags
+                track = QTreeWidgetItem(self.ui.playlist_tracks, ["",
+                                                                  F"{idx + 1}. {" & ".join(track_tags["ARTIST"])} - {track_tags["TITLE"][0]}",
+                                                                  utils.ms_to_str(int(track_meta.length * 1000))])
+                track.setWhatsThis(0, line["filename"])
+                try:
+                    cover = QByteArray(audio_metadata.load(line)["pictures"][0].data)
+                    pixmap = QPixmap()
+                    pixmap.loadFromData(cover)
+                    icon = QIcon(pixmap)
+                except Exception:
+                    icon = QIcon("cat.png")
+            track.setIcon(0, icon)
+
     def back_to_artists(self):
         self.ui.artists_stacked_widget.setCurrentIndex(0)
     
@@ -347,12 +389,26 @@ class QuchingWindow(QMainWindow):
         self.player.current_track = -1
         self.ui.queue_model.clear()
         self.setup_queue()
+
+    def compile_dynamic_playlist(self, file):
+        playlist_selectors = json.loads(open(file).read())
+        tracks = db.search_db(playlist_selectors)
+        audio_tracks = [t["filename"] for t in tracks if "cue" not in t.keys()]
+        cue_tracks = [F"cue://{t["cue"]}/{t["tracknumber"]}" for t in tracks if "cue" in t.keys()]
+        return audio_tracks + cue_tracks
     
     def play_playlist(self, _):
-        selection_model = self.ui.playlists_list.selectionModel()
+        if self.ui.playlist_page_switcher.currentText() == "Dynamic":
+            selection_model = self.ui.dynamic_playlists_list.selectionModel()
+        else:
+            selection_model = self.ui.playlists_list.selectionModel()
         if selection_model.hasSelection():
-            playlist = self.ui.playlists_model.itemFromIndex(selection_model.selectedIndexes()[0])
-            playlist_tracks = open(playlist.whatsThis(), "r").read().splitlines()
+            if self.ui.playlist_page_switcher.currentText() == "Dynamic":
+                playlist = self.ui.dynamic_playlists_model.itemFromIndex(selection_model.selectedIndexes()[0])
+                playlist_tracks = self.compile_dynamic_playlist(playlist.whatsThis())
+            else:
+                playlist = self.ui.playlists_model.itemFromIndex(selection_model.selectedIndexes()[0])
+                playlist_tracks = open(playlist.whatsThis(), "r").read().splitlines()
             self.clear_queue(_)
             self.player.queue = playlist_tracks
             self.player.current_track = -1

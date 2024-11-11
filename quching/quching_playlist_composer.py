@@ -1,15 +1,6 @@
-from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
-    QMetaObject, QObject, QPoint, QRect,
-    QSize, QTime, QUrl, Qt)
-from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
-    QFont, QFontDatabase, QGradient, QIcon,
-    QImage, QKeySequence, QLinearGradient, QPainter,
-    QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QAbstractButton, QAbstractItemView, QApplication, QComboBox,
-                               QDialog, QDialogButtonBox, QGridLayout, QHBoxLayout,
-                               QHeaderView, QLabel, QLineEdit, QListView,
-                               QSizePolicy, QTabWidget, QTableWidget, QTableWidgetItem,
-                               QToolButton, QVBoxLayout, QWidget, QListWidget, QListWidgetItem, QMenu)
+from PySide6.QtCore import (Qt)
+from PySide6.QtGui import (QIcon)
+from PySide6.QtWidgets import (QDialog, QLineEdit, QTableWidgetItem, QListWidgetItem, QMenu)
 import quching.indexer.database as db
 from quching.gui.playlist_dialog import Ui_playlist_dialog
 from quching.cue import parser

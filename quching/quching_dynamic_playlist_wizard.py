@@ -1,148 +1,133 @@
-# -*- coding: utf-8 -*-
-
-################################################################################
-## Form generated from reading UI file 'dyn_playlistBbGATj.ui'
-##
-## Created by: Qt User Interface Compiler version 6.7.2
-##
-## WARNING! All changes made in this file will be lost when recompiling UI file!
-################################################################################
-
-from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
-    QMetaObject, QObject, QPoint, QRect,
-    QSize, QTime, QUrl, Qt)
-from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
-    QFont, QFontDatabase, QGradient, QIcon,
-    QImage, QKeySequence, QLinearGradient, QPainter,
-    QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QAbstractButton, QApplication, QComboBox, QDialog,
-    QDialogButtonBox, QHBoxLayout, QHeaderView, QLineEdit,
-    QSizePolicy, QSpacerItem, QTableWidget, QTableWidgetItem,
-    QToolButton, QVBoxLayout, QWidget)
+from PySide6.QtCore import Qt
+from PySide6.QtGui import QIcon
+from PySide6.QtWidgets import (QComboBox, QDialog, QHBoxLayout, QLineEdit, QToolButton, QWidget, QTableWidgetItem)
+from quching.gui.dynamic_playlist_dialog import Ui_dynamic_playlist
+from quching.indexer.database import search_db
+from quching.utils import str_to_s
+import json
+from pathlib import Path
+import os
 
 COLUMNS = ["artist", "album", "title", "year", "genre", "duration"]
 
-class QuchingDynamicPlaylistWizardUI(object):
-    def setupUi(self, Dialog):
-        if not Dialog.objectName():
-            Dialog.setObjectName(u"Dialog")
-        Dialog.resize(640, 480)
-        self.verticalLayout = QVBoxLayout(Dialog)
-        self.verticalLayout.setObjectName(u"verticalLayout")
-        self.playlist_name_box = QLineEdit(Dialog)
-        self.playlist_name_box.setObjectName(u"playlist_name_box")
-
-        self.verticalLayout.addWidget(self.playlist_name_box)
-
-        self.buttons_widget = QWidget(Dialog)
-        self.buttons_widget.setObjectName(u"buttons_widget")
-        self.horizontalLayout = QHBoxLayout(self.buttons_widget)
-        self.horizontalLayout.setObjectName(u"horizontalLayout")
-        self.button_spacer = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
-
-        self.horizontalLayout.addItem(self.button_spacer)
-
-        self.add_field_button = QToolButton(self.buttons_widget)
-        self.add_field_button.setObjectName(u"add_field_button")
-        icon = QIcon(QIcon.fromTheme(QIcon.ThemeIcon.ListAdd))
-        self.add_field_button.setIcon(icon)
-
-        self.horizontalLayout.addWidget(self.add_field_button)
-
-        self.remove_field_button = QToolButton(self.buttons_widget)
-        self.remove_field_button.setObjectName(u"remove_field_button")
-        icon1 = QIcon(QIcon.fromTheme(QIcon.ThemeIcon.ListRemove))
-        self.remove_field_button.setIcon(icon1)
-
-        self.horizontalLayout.addWidget(self.remove_field_button)
-
-        self.clear_fields_button = QToolButton(self.buttons_widget)
-        self.clear_fields_button.setObjectName(u"clear_fields_button")
-        icon2 = QIcon(QIcon.fromTheme(QIcon.ThemeIcon.WindowClose))
-        self.clear_fields_button.setIcon(icon2)
-
-        self.horizontalLayout.addWidget(self.clear_fields_button)
-
-
-        self.verticalLayout.addWidget(self.buttons_widget)
-
-        self.fields_widget = QWidget(Dialog)
-        self.fields_widget.setObjectName(u"fields_widget")
-        self.verticalLayout_2 = QVBoxLayout(self.fields_widget)
-        self.verticalLayout_2.setObjectName(u"verticalLayout_2")
-        self.first_field = QWidget(self.fields_widget)
-        self.first_field.setObjectName(u"first_field")
-        self.horizontalLayout_2 = QHBoxLayout(self.first_field)
-        self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
-        self.field_choice = QComboBox(self.first_field)
-        self.field_choice.setObjectName(u"field_choice")
-
-        self.horizontalLayout_2.addWidget(self.field_choice)
-
-        self.field_value = QLineEdit(self.first_field)
-        self.field_value.setObjectName(u"field_value")
-
-        self.horizontalLayout_2.addWidget(self.field_value)
-
-
-        self.verticalLayout_2.addWidget(self.first_field)
-
-
-        self.verticalLayout.addWidget(self.fields_widget)
-
-        self.widget = QWidget(Dialog)
-        self.widget.setObjectName(u"widget")
-        self.horizontalLayout_3 = QHBoxLayout(self.widget)
-        self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
-        self.horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
-
-        self.horizontalLayout_3.addItem(self.horizontalSpacer)
-
-        self.preview_button = QToolButton(self.widget)
-        self.preview_button.setObjectName(u"preview_button")
-        self.preview_button.setEnabled(False)
-
-        self.horizontalLayout_3.addWidget(self.preview_button)
-
-
-        self.verticalLayout.addWidget(self.widget)
-
-        self.preview_table = QTableWidget(Dialog)
-        self.preview_table.setObjectName(u"preview_table")
-        self.preview_table.setColumnCount(6)
-        for i, c in enumerate(COLUMNS):
-            self.preview_table.setHorizontalHeaderItem(i, QTableWidgetItem(c))
-
-        self.verticalLayout.addWidget(self.preview_table)
-
-        self.end_button_box = QDialogButtonBox(Dialog)
-        self.end_button_box.setObjectName(u"end_button_box")
-        self.end_button_box.setOrientation(Qt.Orientation.Horizontal)
-        self.end_button_box.setStandardButtons(QDialogButtonBox.StandardButton.Cancel|QDialogButtonBox.StandardButton.Ok)
-        self.end_button_box.setEnabled(False)
-
-        self.verticalLayout.addWidget(self.end_button_box)
-
-
-        self.retranslateUi(Dialog)
-        self.end_button_box.accepted.connect(Dialog.accept)
-        self.end_button_box.rejected.connect(Dialog.reject)
-
-        QMetaObject.connectSlotsByName(Dialog)
-    # setupUi
-
-    def retranslateUi(self, Dialog):
-        Dialog.setWindowTitle(QCoreApplication.translate("Dialog", u"Dialog", None))
-        self.playlist_name_box.setPlaceholderText(QCoreApplication.translate("Dialog", u"playlist name", None))
-        self.add_field_button.setText(QCoreApplication.translate("Dialog", u"...", None))
-        self.remove_field_button.setText(QCoreApplication.translate("Dialog", u"...", None))
-        self.clear_fields_button.setText(QCoreApplication.translate("Dialog", u"...", None))
-        self.preview_button.setText(QCoreApplication.translate("Dialog", u"Preview", None))
-    # retranslateUi
 
 class QuchingDynamicPlaylistWizard(QDialog):
     def __init__(self, window_type = Qt.WindowType.Dialog, playlist_file = None, name = None):
         super().__init__(None, window_type)
-        self.ui = QuchingDynamicPlaylistWizardUI()
+        self.ui = Ui_dynamic_playlist()
         self.ui.setupUi(self)
+        self.fields = []
+        self.name = ""
+        if name is not None:
+            self.name = name
+        if playlist_file is not None:
+            self.load_playlist(playlist_file)
+        self.ui.add_field_button.clicked.connect(self.add_field)
+        self.ui.preview_button.clicked.connect(self.preview)
+        self.ui.end_button_box.accepted.connect(self.save_playlist)
+        self.ui.playlist_name_box.textEdited.connect(self.toggle_dialog_buttons)
 
+    def add_field(self):
+        fields_amount = len(
+            self.ui.fields_widget.findChildren(QWidget, options=Qt.FindChildOption.FindDirectChildrenOnly))
+        new_field_widget = QWidget(self.ui.fields_widget)
+        new_field_widget.setObjectName(F"field_widget{fields_amount}")
+        field_layout = QHBoxLayout(new_field_widget)
+        operator_selection = QComboBox(new_field_widget)
+        operator_selection.setObjectName(F"operator_selection{fields_amount}")
+        operator_selection.addItem("AND")
+        operator_selection.addItem("OR")
+        field_layout.addWidget(operator_selection)
+        field_selection = QComboBox(new_field_widget)
+        field_selection.setObjectName(F"field_selection{fields_amount}")
+        field_selection.addItem("artist")
+        field_selection.addItem("album")
+        field_selection.addItem("year")
+        field_selection.addItem("genre")
+        field_selection.addItem("title")
+        field_selection.addItem("duration")
+        field_layout.addWidget(field_selection)
+        equals_selection = QComboBox(new_field_widget)
+        equals_selection.setObjectName(F"equals_selection{fields_amount}")
+        equals_selection.addItem("=")
+        equals_selection.addItem("!=")
+        field_layout.addWidget(equals_selection)
+        field_value = QLineEdit(new_field_widget)
+        field_value.setObjectName(F"field_value{fields_amount}")
+        field_layout.addWidget(field_value)
+        remove_button = QToolButton(new_field_widget)
+        remove_icon = QIcon(QIcon.fromTheme(QIcon.ThemeIcon.ListRemove))
+        remove_button.setIcon(remove_icon)
+        remove_button.clicked.connect(self.remove_field)
+        field_layout.addWidget(remove_button)
+        self.ui.fields_layout.addWidget(new_field_widget)
+
+    def remove_field(self):
+        sender = self.sender()
+        if sender:
+            sender.parentWidget().parentWidget().layout().removeWidget(sender.parentWidget())
+            sender.parentWidget().deleteLater()
+
+    def update_fields(self):
+        field_lines = self.ui.fields_widget.findChildren(QWidget, options=Qt.FindChildOption.FindDirectChildrenOnly)
+        selectors = []
+        for field in field_lines:
+            if field.objectName() == "first_field":
+                query = self.ui.field_value.text()
+                field_choice = self.ui.field_choice.currentText()
+                equals_choice = self.ui.equals_choice.currentText()
+                if len(query) == 0:
+                    continue
+                selectors.append((field_choice, equals_choice, query))
+            else:
+                selectors.extend(self.__get_selector_values(field, len(selectors)))
+        self.fields = selectors
+
+    def preview(self):
+        self.update_fields()
+        self.ui.preview_table.clearContents()
+        query = search_db(self.fields, 20)
+        row = 0
+        for track in query:
+            self.ui.preview_table.setRowCount(row + 1)
+            for k in track.keys():
+                if k not in COLUMNS:
+                    continue
+                item = QTableWidgetItem(track[k])
+                if track[k] is not None and not isinstance(track[k], str):
+                    item = QTableWidgetItem(str(track[k]))
+                item.setFlags(Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled)
+                column = COLUMNS.index(k)
+                self.ui.preview_table.setItem(row, column, item)
+            row += 1
+
+    def __get_selector_values(self, field, field_num):
+        query = field.findChild(QLineEdit).text()
+        if len(query) == 0:
+            return []
+        field_selection = field.findChild(QComboBox, name=F"field_selection{field_num}").currentText()
+        if field_selection == "year":
+            query = int(query)
+        if field_selection == "duration":
+            query = str_to_s(query)
+        operator_value = field.findChild(QComboBox, name=F"operator_selection{field_num}").currentText()
+        equals_value = field.findChild(QComboBox, name=F"equals_selection{field_num}").currentText()
+        return [operator_value, (field_selection, equals_value, query)]
+
+    def toggle_dialog_buttons(self):
+        self.update_fields()
+        self.name = self.ui.playlist_name_box.text()
+        if len(self.fields) == 0 or len(self.ui.playlist_name_box.text()) == 0:
+            self.ui.end_button_box.setEnabled(False)
+        else:
+            self.ui.end_button_box.setEnabled(True)
+
+    def load_playlist(self, file):
+        playlist = json.loads(open(file).read())
+        self.fields = playlist
+
+    def save_playlist(self):
+        playlists_directory = Path(os.path.join(str(Path("~").expanduser()), ".config/quching/dynamic_playlists"))
+        playlist_path = os.path.join(playlists_directory, F"{self.name}.json")
+        playlist_file = open(playlist_path, "w")
+        playlist_file.write(json.dumps(self.fields))
