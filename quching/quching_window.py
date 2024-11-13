@@ -392,7 +392,7 @@ class QuchingWindow(QMainWindow):
 
     def compile_dynamic_playlist(self, file):
         playlist_selectors = json.loads(open(file).read())
-        tracks = db.search_db(playlist_selectors)
+        tracks = db.search_db(playlist_selectors, 50)  # TODO: lazy load the playlist instead of loading a whole chunk at once
         audio_tracks = [t["filename"] for t in tracks if "cue" not in t.keys()]
         cue_tracks = [F"cue://{t["cue"]}/{t["tracknumber"]}" for t in tracks if "cue" in t.keys()]
         return audio_tracks + cue_tracks
