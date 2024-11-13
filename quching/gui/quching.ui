@@ -132,6 +132,9 @@
                 <height>150</height>
                </size>
               </property>
+              <property name="resizeMode">
+               <enum>QListView::ResizeMode::Adjust</enum>
+              </property>
               <property name="gridSize">
                <size>
                 <width>150</width>
@@ -216,6 +219,9 @@
                 <width>150</width>
                 <height>150</height>
                </size>
+              </property>
+              <property name="resizeMode">
+               <enum>QListView::ResizeMode::Adjust</enum>
               </property>
               <property name="gridSize">
                <size>
@@ -360,7 +366,7 @@
             <item>
              <widget class="QStackedWidget" name="stacked_playlists_lists">
               <property name="currentIndex">
-               <number>1</number>
+               <number>0</number>
               </property>
               <widget class="QWidget" name="playlists_page">
                <layout class="QVBoxLayout" name="playlists_page_layout">
@@ -377,6 +383,9 @@
                   </property>
                   <property name="movement">
                    <enum>QListView::Movement::Static</enum>
+                  </property>
+                  <property name="resizeMode">
+                   <enum>QListView::ResizeMode::Adjust</enum>
                   </property>
                   <property name="gridSize">
                    <size>
@@ -400,6 +409,9 @@
                     <width>100</width>
                     <height>100</height>
                    </size>
+                  </property>
+                  <property name="resizeMode">
+                   <enum>QListView::ResizeMode::Adjust</enum>
                   </property>
                   <property name="gridSize">
                    <size>

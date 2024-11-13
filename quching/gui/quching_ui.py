@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'quchingViUMQt.ui'
+## Form generated from reading UI file 'quchingbfqYTC.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.7.2
 ##
@@ -101,6 +101,7 @@ class Ui_Quching(object):
         self.artists_list.setObjectName(u"artists_list")
         self.artists_list.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
         self.artists_list.setIconSize(QSize(150, 150))
+        self.artists_list.setResizeMode(QListView.ResizeMode.Adjust)
         self.artists_list.setGridSize(QSize(150, 150))
         self.artists_list.setViewMode(QListView.ViewMode.IconMode)
 
@@ -150,6 +151,7 @@ class Ui_Quching(object):
         self.albums_list.setObjectName(u"albums_list")
         self.albums_list.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
         self.albums_list.setIconSize(QSize(150, 150))
+        self.albums_list.setResizeMode(QListView.ResizeMode.Adjust)
         self.albums_list.setGridSize(QSize(200, 200))
         self.albums_list.setViewMode(QListView.ViewMode.IconMode)
 
@@ -248,6 +250,7 @@ class Ui_Quching(object):
         self.playlists_list.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
         self.playlists_list.setIconSize(QSize(100, 100))
         self.playlists_list.setMovement(QListView.Movement.Static)
+        self.playlists_list.setResizeMode(QListView.ResizeMode.Adjust)
         self.playlists_list.setGridSize(QSize(150, 150))
         self.playlists_list.setViewMode(QListView.ViewMode.IconMode)
 
@@ -261,6 +264,7 @@ class Ui_Quching(object):
         self.dynamic_playlists_list = QListView(self.dynamic_playlists_page)
         self.dynamic_playlists_list.setObjectName(u"dynamic_playlists_list")
         self.dynamic_playlists_list.setIconSize(QSize(100, 100))
+        self.dynamic_playlists_list.setResizeMode(QListView.ResizeMode.Adjust)
         self.dynamic_playlists_list.setGridSize(QSize(150, 150))
         self.dynamic_playlists_list.setViewMode(QListView.ViewMode.IconMode)
 
