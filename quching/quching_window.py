@@ -415,11 +415,19 @@ class QuchingWindow(QMainWindow):
             self.setup_queue()
     
     def edit_playlist(self):
-        selection_model = self.ui.playlists_list.selectionModel()
+        if self.ui.playlist_page_switcher.currentIndex():
+            selection_model = self.ui.dynamic_playlists_list.selectionModel()
+        else:
+            selection_model = self.ui.playlists_list.selectionModel()
         if selection_model.hasSelection():
-            playlist = self.ui.playlists_model.itemFromIndex(selection_model.selectedIndexes()[0])
-            dialog = QuchingPlaylistComposer(playlist=playlist.whatsThis(), name=playlist.text())
-            dialog.exec()
+            if self.ui.playlist_page_switcher.currentIndex():
+                playlist = self.ui.dynamic_playlists_model.itemFromIndex(selection_model.selectedIndexes()[0])
+                dialog = QuchingDynamicPlaylistWizard(playlist_file=playlist.whatsThis(), name=playlist.text())
+                dialog.exec()
+            else:
+                playlist = self.ui.playlists_model.itemFromIndex(selection_model.selectedIndexes()[0])
+                dialog = QuchingPlaylistComposer(playlist=playlist.whatsThis(), name=playlist.text())
+                dialog.exec()
 
     def open_playlist_dialog(self, _):
         if self.ui.playlist_page_switcher.currentIndex():

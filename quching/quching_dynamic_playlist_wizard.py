@@ -20,6 +20,7 @@ class QuchingDynamicPlaylistWizard(QDialog):
         self.name = ""
         if name is not None:
             self.name = name
+            self.ui.playlist_name_box.setText(name)
         if playlist_file is not None:
             self.load_playlist(playlist_file)
         self.ui.add_field_button.clicked.connect(self.add_field)
@@ -61,6 +62,7 @@ class QuchingDynamicPlaylistWizard(QDialog):
         remove_button.clicked.connect(self.remove_field)
         field_layout.addWidget(remove_button)
         self.ui.fields_layout.addWidget(new_field_widget)
+        return operator_selection, field_selection, equals_selection, field_value
 
     def remove_field(self):
         sender = self.sender()
@@ -125,6 +127,18 @@ class QuchingDynamicPlaylistWizard(QDialog):
     def load_playlist(self, file):
         playlist = json.loads(open(file).read())
         self.fields = playlist
+        self.ui.field_value.setText(self.fields[0][2])
+        self.ui.field_choice.setCurrentText(self.fields[0][0])
+        self.ui.equals_choice.setCurrentText(self.fields[0][1])
+        new_field = None
+        for f in self.fields[1:]:
+            if type(f) is str:
+                new_field = self.add_field()
+                new_field[0].setCurrentText(f)
+            else:
+                new_field[1].setCurrentText(f[0])
+                new_field[2].setCurrentText(f[1])
+                new_field[3].setText(f[2])
 
     def save_playlist(self):
         playlists_directory = Path(os.path.join(str(Path("~").expanduser()), ".config/quching/dynamic_playlists"))
