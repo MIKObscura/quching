@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'dyn_playlistTrayaI.ui'
+## Form generated from reading UI file 'dyn_playlistXUKAqp.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.7.2
 ##
@@ -107,6 +107,11 @@ class Ui_dynamic_playlist(object):
 
         self.horizontalLayout_3.addWidget(self.preview_button)
 
+        self.increase_preview_size_button = QToolButton(self.widget)
+        self.increase_preview_size_button.setObjectName(u"increase_preview_size_button")
+
+        self.horizontalLayout_3.addWidget(self.increase_preview_size_button)
+
 
         self.verticalLayout.addWidget(self.widget)
 
@@ -160,6 +165,7 @@ class Ui_dynamic_playlist(object):
         self.equals_choice.setItemText(1, QCoreApplication.translate("dynamic_playlist", u"!=", None))
 
         self.preview_button.setText(QCoreApplication.translate("dynamic_playlist", u"Preview", None))
+        self.increase_preview_size_button.setText(QCoreApplication.translate("dynamic_playlist", u"More", None))
         ___qtablewidgetitem = self.preview_table.horizontalHeaderItem(0)
         ___qtablewidgetitem.setText(QCoreApplication.translate("dynamic_playlist", u"Artist", None));
         ___qtablewidgetitem1 = self.preview_table.horizontalHeaderItem(1)

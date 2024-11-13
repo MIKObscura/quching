@@ -168,10 +168,10 @@ def search_db(selectors, limit=None):
     placeholders = []
     for s in selectors:
         if type(s) in (list, tuple):
-            if "%" in s[2] or "_" in s[2]:
+            if s[1] == "=":
                 search_string += F"{s[0]} LIKE ?"
             else:
-                search_string += F"{s[0]}{s[1]}?"
+                search_string += F"{s[0]} NOT LIKE ?"
             placeholders.append(s[2])
         else:
             search_string += F" {s} "

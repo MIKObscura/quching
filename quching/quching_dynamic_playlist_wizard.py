@@ -18,6 +18,8 @@ class QuchingDynamicPlaylistWizard(QDialog):
         self.ui.setupUi(self)
         self.fields = []
         self.name = ""
+        self.preview_size = 20
+        self.ui.increase_preview_size_button.setVisible(False)
         if name is not None:
             self.name = name
             self.ui.playlist_name_box.setText(name)
@@ -27,6 +29,7 @@ class QuchingDynamicPlaylistWizard(QDialog):
         self.ui.preview_button.clicked.connect(self.preview)
         self.ui.end_button_box.accepted.connect(self.save_playlist)
         self.ui.playlist_name_box.textEdited.connect(self.toggle_dialog_buttons)
+        self.ui.increase_preview_size_button.clicked.connect(self.increase_preview_size)
 
     def add_field(self):
         fields_amount = len(
@@ -88,7 +91,8 @@ class QuchingDynamicPlaylistWizard(QDialog):
     def preview(self):
         self.update_fields()
         self.ui.preview_table.clearContents()
-        query = search_db(self.fields, 20)
+        self.ui.preview_table.setRowCount(0)
+        query = search_db(self.fields, self.preview_size)
         row = 0
         for track in query:
             self.ui.preview_table.setRowCount(row + 1)
@@ -102,6 +106,14 @@ class QuchingDynamicPlaylistWizard(QDialog):
                 column = COLUMNS.index(k)
                 self.ui.preview_table.setItem(row, column, item)
             row += 1
+        if self.ui.preview_table.rowCount() == 0 or self.preview_size > len(query):
+            self.ui.increase_preview_size_button.setVisible(False)
+        else:
+            self.ui.increase_preview_size_button.setVisible(True)
+
+    def increase_preview_size(self):
+        self.preview_size += 20
+        self.preview()
 
     def __get_selector_values(self, field, field_num):
         query = field.findChild(QLineEdit).text()

@@ -146,6 +146,13 @@
         </property>
        </widget>
       </item>
+      <item>
+       <widget class="QToolButton" name="increase_preview_size_button">
+        <property name="text">
+         <string>More</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>
